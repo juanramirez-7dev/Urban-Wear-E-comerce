@@ -1,0 +1,93 @@
+# =========================================
+# BUILD
+# =========================================
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# =========================================
+# .NET
+# =========================================
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# NuGet
+*.nupkg
+*.snupkg
+
+# MSBuild
+*.binlog
+
+# Test
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+CodeCoverage/
+
+# =========================================
+# ENV
+# =========================================
+.env
+.env.*
+!.env.example
+
+# =========================================
+# VISUAL STUDIO / EDITORS
+# =========================================
+.vs/
+*.user
+*.suo
+
+.vscode/
+.idea/
+*.sln.iml
+
+# =========================================
+# FRONTEND / NODE / REACT
+# =========================================
+node_modules/
+dist/
+build/
+coverage/
+
+# npm
+npm-debug.log*
+
+# yarn
+yarn-debug.log*
+yarn-error.log*
+
+# pnpm
+.pnpm-store/
+
+# vite
+vite.svg
+
+# =========================================
+# OS
+# =========================================
+.DS_Store
+Thumbs.db
+
+# =========================================
+# TEMP
+# =========================================
+~$*
+*~
