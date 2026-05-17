@@ -8,10 +8,12 @@ namespace API.Services
     public class CategoriaService : ICategoriaService
     {
         private readonly ICategoriaRepository _repository;
+        private readonly IProductoRepository _productoRepository;
 
-        public CategoriaService(ICategoriaRepository repository)
+        public CategoriaService(ICategoriaRepository repository, IProductoRepository productoRepository)
         {
             _repository = repository;
+            _productoRepository = productoRepository;
         }
 
         public async Task<IEnumerable<Categoria>> GetAllAsync()
@@ -71,6 +73,11 @@ namespace API.Services
             if (existingCategory == null)
             {
                 throw new KeyNotFoundException($"No se encontró la categoría con el ID {id}");
+            }
+            var productos = await _productoRepository.GetByCategoryIdAsync(id);
+            if (productos.Any())
+            {
+                throw new InvalidOperationException($"No se puede eliminar la categoría con el ID {id} porque tiene productos asociados.");
             }
 
             await _repository.DeleteAsync(id);
