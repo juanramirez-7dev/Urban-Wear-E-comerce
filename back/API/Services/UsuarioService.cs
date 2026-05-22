@@ -1,0 +1,100 @@
+﻿using API.Interfaces.Repositories;
+using API.Interfaces.Services;
+using API.Models;
+
+namespace API.Services
+{
+    public class UsuarioService : IUsuarioService
+    {
+        private readonly IUsuarioRepository _repository;
+        private readonly IHasherService _hasherService;
+        public UsuarioService(IUsuarioRepository repository, IHasherService hasherService)
+        {
+            _repository = repository;
+            _hasherService = hasherService;
+        }
+        public async Task<IEnumerable<Usuario>> GetAllAsync()
+        {
+            return await _repository.GetAllAsync();
+        }
+        public async Task<Usuario> GetByIdAsync(Guid id)
+        {
+            var usuario = await _repository.GetByIdAsync(id);
+            if (usuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el ID {id} no existe.");
+            }
+            return usuario;
+        }
+        public async Task<Usuario> AddAsync(Usuario usuario)
+        {
+            var existingUsuario = await _repository.GetByEmailAsync(usuario.Email);
+            if (existingUsuario != null)
+            {
+                throw new InvalidOperationException($"Ya existe un usuario con el email {usuario.Email}.");
+            }
+            if (usuario.Nombre.Length == 0)
+            {
+                throw new ArgumentException($"El nombre no puede estar vacio");
+            }
+            var partes = usuario.Email.Split('@');
+            if (partes.Length != 2 || partes[0].Length == 0 || partes[1].Length == 0 || !partes[1].Contains('.'))
+            {
+                throw new ArgumentException($"El email no es valido");
+            }
+            if (usuario.PasswordHash.Length < 8)
+            {
+                throw new ArgumentException($"La contraseña es muy corta");
+            }
+
+            usuario.PasswordHash = _hasherService.HashPassword(usuario.PasswordHash);
+
+            await _repository.AddAsync(usuario);
+            return usuario;
+        }
+        public async Task UpdateAsync(Usuario usuario, Guid id)
+        {
+            var existingUsuario = await _repository.GetByIdAsync(id);
+            if (existingUsuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el ID {id} no existe.");
+            }
+            if (usuario.Nombre.Length == 0)
+            {
+                throw new ArgumentException($"El nombre no puede estar vacio");
+            }
+            var partes = usuario.Email.Split('@');
+            if (partes.Length != 2 || partes[0].Length == 0 || partes[1].Length == 0 || !partes[1].Contains('.'))
+            {
+                throw new ArgumentException($"El email no es valido");
+            }
+            existingUsuario.Nombre = usuario.Nombre;
+            existingUsuario.Email = usuario.Email;
+            existingUsuario.Telefono = usuario.Telefono;
+            existingUsuario.PasswordHash = usuario.PasswordHash;
+
+            await _repository.UpdateAsync(existingUsuario);
+        }
+        public async Task DeleteAsync(Guid id)
+        {
+            var existingUsuario = await _repository.GetByIdAsync(id);
+            if (existingUsuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el ID {id} no existe.");
+            }
+            await _repository.DeleteAsync(id);
+        }
+        public async Task<Usuario> GetByEmailAsync(string email)
+        {
+            var usuario = await _repository.GetByEmailAsync(email);
+            if (usuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el email {email} no existe.");
+            }
+            return usuario;
+        }
+
+       
+    }
+}
+

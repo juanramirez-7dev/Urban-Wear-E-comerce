@@ -1,6 +1,7 @@
 using API.DTOs.Producto;
 using API.Interfaces.Services;
 using API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -80,6 +81,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductoResponseDto>> Create([FromBody] ProductoCreateRequestDto request)
         {
             try
@@ -112,9 +114,14 @@ namespace API.Controllers
             {
                 return Conflict(new { message = ex.Message });
             }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductoResponseDto>> Update(Guid id, [FromBody] ProductoUpdateRequestDto request)
         {
             try
@@ -155,6 +162,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try

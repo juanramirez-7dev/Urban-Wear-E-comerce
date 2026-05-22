@@ -1,6 +1,7 @@
 using API.DTOs.Categoria;
 using API.Interfaces.Services;
 using API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -52,6 +53,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<CategoriaResponseDto>> Create([FromBody] CategoriaCreateRequestDto request)
         {
             try
@@ -79,6 +81,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<CategoriaResponseDto>> Update(Guid id, [FromBody] CategoriaUpdateRequestDto request)
         {
             try
@@ -111,6 +114,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             try

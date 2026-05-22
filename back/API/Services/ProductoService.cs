@@ -7,10 +7,12 @@ namespace API.Services
     public class ProductoService : IProductoService
     {
         private readonly IProductoRepository _repository;
+        private readonly ICategoriaRepository _categoriaRepository;
 
-        public ProductoService(IProductoRepository repository)
+        public ProductoService(IProductoRepository repository,ICategoriaRepository categoryRepository)
         {
             _repository = repository;
+            _categoriaRepository = categoryRepository;
         }
 
         public async Task<IEnumerable<Producto>> GetAllAsync()
@@ -44,6 +46,13 @@ namespace API.Services
             if (producto.CategoriaId == Guid.Empty)
             {
                 throw new InvalidOperationException("El producto debe tener un CategoriaId válido.");
+            }
+
+            var existing = await _categoriaRepository.GetByIdAsync(producto.CategoriaId);
+
+            if (existing == null)
+            {
+                throw new KeyNotFoundException($"No existe la categoria con el ID {producto.CategoriaId}");
             }
 
             producto.Id = Guid.NewGuid();

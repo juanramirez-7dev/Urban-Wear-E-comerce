@@ -29,12 +29,12 @@ namespace API.Repositories
 
             if (categoriaId.HasValue)
             {
-                query = query.Where(p => p.CategoriaId == categoriaId.Value);
+                query = query.Where(p => p.CategoriaId == categoriaId);
             }
 
             if (precio.HasValue)
             {
-                query = query.Where(p => (decimal)p.Precio == precio.Value);
+                query = query.Where(p => (decimal)p.Precio == precio);
             }
 
             var total = await query.CountAsync();
