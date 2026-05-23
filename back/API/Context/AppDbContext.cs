@@ -43,7 +43,7 @@ namespace API.Context
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.Nombre).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
-                entity.Property(u => u.Telefono).HasMaxLength(100);
+                entity.Property(u => u.Telefono).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
                 entity.Property(u => u.Rol).HasMaxLength(20);
             });

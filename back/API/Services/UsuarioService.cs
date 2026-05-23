@@ -46,6 +46,10 @@ namespace API.Services
             {
                 throw new ArgumentException($"La contraseña es muy corta");
             }
+            if (usuario.Telefono.Length != 10)
+            {
+                throw new ArgumentException($"Debe ingresar un telefono movil Valido");
+            }
 
             usuario.PasswordHash = _hasherService.HashPassword(usuario.PasswordHash);
 
@@ -68,14 +72,21 @@ namespace API.Services
             {
                 throw new ArgumentException($"El email no es valido");
             }
-            if (usuario.PasswordHash.Length < 8)
+            if (existingUsuario.Email != usuario.Email)
             {
-                throw new ArgumentException($"La contraseña es muy corta");
+                var emailExistente = await _repository.GetByEmailAsync(usuario.Email);
+                if (emailExistente != null)
+                {
+                    throw new InvalidOperationException($"Ya existe un usuario con el email {usuario.Email}.");
+                }
+            }
+            if (usuario.Telefono.Length != 10 )
+            {
+                throw new ArgumentException($"Debe ingresar un telefono movil Valido");
             }
             existingUsuario.Nombre = usuario.Nombre;
             existingUsuario.Email = usuario.Email;
             existingUsuario.Telefono = usuario.Telefono;
-            existingUsuario.PasswordHash = _hasherService.HashPassword(usuario.PasswordHash) ;
 
             await _repository.UpdateAsync(existingUsuario);
         }
@@ -98,7 +109,25 @@ namespace API.Services
             return usuario;
         }
 
-       
+        public async Task UpdatePasswordAsync(Guid id, string currentPassword, string newPassword)
+        {
+            var existingUsuario = await _repository.GetByIdAsync(id);
+            if (existingUsuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el ID {id} no existe.");
+            }
+            if (!_hasherService.VerifyPassword(currentPassword, existingUsuario.PasswordHash))
+            {
+                throw new InvalidOperationException("Contraseña actual incorrecta.");
+            }
+            if (newPassword.Length < 8)
+            {
+                throw new ArgumentException($"La nueva contraseña es muy corta");
+            }
+            existingUsuario.PasswordHash = _hasherService.HashPassword(newPassword);
+            await _repository.UpdateAsync(existingUsuario);
+        }
+
     }
 }
 

@@ -47,8 +47,10 @@ namespace API.Controllers
                 var usuario = new Usuario
                 {
                     Nombre = request.Nombre,
-                    PasswordHash = request.Password,
-                    Email = request.Email
+                    Telefono = request.Telefono,
+                    Email = request.Email,
+                    PasswordHash = request.Password 
+
                 };
                 var createdUsuario = await _usuarioService.AddAsync(usuario);
 
@@ -74,15 +76,15 @@ namespace API.Controllers
         [HttpPut("{id:guid}")]
         [Authorize(Roles = "Cliente")]
 
-        public async Task<ActionResult> Update(Guid id, [FromBody] UsuarioRequestDto request)
+        public async Task<ActionResult> Update(Guid id, [FromBody] UsuarioUpdateRequestDto request)
         {
             try
             {
                 var usuario = new Usuario
                 {
                     Nombre = request.Nombre,
-                    PasswordHash = request.Password,
-                    Email = request.Email
+                    Email = request.Email,
+                    Telefono = request.Telefono
                 };
                 await _usuarioService.UpdateAsync(usuario, id);
                 return NoContent();
@@ -92,6 +94,10 @@ namespace API.Controllers
                 return NotFound(new { message = ex.Message });
             }
             catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -108,6 +114,29 @@ namespace API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("{id:guid}/password")]
+        [Authorize(Roles = "Cliente")]
+        public async Task<ActionResult> UpdatePassword(UpdatePasswordDto request)
+        {
+            try
+            {
+                await _usuarioService.UpdatePasswordAsync(request.id, request.CurrentPassword, request.NewPassword);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

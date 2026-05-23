@@ -46,29 +46,26 @@ namespace API.Controllers
 
         [HttpGet("me")]
         [Authorize]
-        public async Task<ActionResult<AuthUserDto>> Me()
+        public ActionResult<AuthUserDto> Me()
         {
             try
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var nombre = User.FindFirst(ClaimTypes.Name)?.Value;
+                var email = User.FindFirst(ClaimTypes.Email)?.Value;
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-                if (!Guid.TryParse(userIdClaim, out var userId))
-                {
-                    return Unauthorized();
-                }
+                var userAuth = _service.meMethod(id, nombre, email, role);
 
-                var usuario = await _usuarioService.GetByIdAsync(userId);
-
-                return Ok(new AuthUserDto
-                {
-                    Id = usuario.Id,
-                    Name = usuario.Nombre,
-                    Email = usuario.Email
-                });
+                return Ok(userAuth);
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
         }
     }

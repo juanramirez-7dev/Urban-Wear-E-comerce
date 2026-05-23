@@ -2,6 +2,7 @@
 using API.Interfaces.Repositories;
 using API.Interfaces.Services;
 using API.Models;
+using System.Security.Claims;
 
 namespace API.Services
 {
@@ -33,13 +34,35 @@ namespace API.Services
             {
                 throw new UnauthorizedAccessException($"La contraseña o el correo son incorrectos");
             }
-            var token = _jwtService.GenerateToken(usuario.Id.ToString(),usuario.Rol.ToString());
+            var token = _jwtService.GenerateToken(usuario.Id.ToString(), usuario.Rol.ToString(), usuario.Nombre, usuario.Email);
 
             var response = new LoginResponseDto
             {
                 Token = token
             };
             return response;
+        }
+
+        public AuthUserDto meMethod(string? id,string? nombre,string? email, string? role)
+        {
+
+            if (!Guid.TryParse(id, out var userId))
+            {
+                throw new UnauthorizedAccessException($"Usuario con Id no valido");
+            }
+            if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(role))
+            {
+                throw new UnauthorizedAccessException($"Usuario con datos incompletos");
+            }
+
+            AuthUserDto userAuth = new AuthUserDto
+            {
+                Id = userId,
+                Name = nombre,
+                Email = email,
+                Role = role.ToString()
+            };
+            return userAuth;
         }
     }
 }
