@@ -44,8 +44,8 @@ namespace API.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("me")]
+        [Authorize]
         public async Task<ActionResult<AuthUserDto>> Me()
         {
             try

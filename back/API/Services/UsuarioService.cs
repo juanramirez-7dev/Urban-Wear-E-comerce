@@ -68,10 +68,14 @@ namespace API.Services
             {
                 throw new ArgumentException($"El email no es valido");
             }
+            if (usuario.PasswordHash.Length < 8)
+            {
+                throw new ArgumentException($"La contraseña es muy corta");
+            }
             existingUsuario.Nombre = usuario.Nombre;
             existingUsuario.Email = usuario.Email;
             existingUsuario.Telefono = usuario.Telefono;
-            existingUsuario.PasswordHash = usuario.PasswordHash;
+            existingUsuario.PasswordHash = _hasherService.HashPassword(usuario.PasswordHash) ;
 
             await _repository.UpdateAsync(existingUsuario);
         }
