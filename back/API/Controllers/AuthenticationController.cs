@@ -30,6 +30,10 @@ namespace API.Controllers
                 var response = await _service.LoginAsync(dto);
                 return Ok(response);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);

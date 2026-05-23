@@ -19,6 +19,11 @@ namespace API.Services
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
         {
+            var partes = dto.Email.Split('@');
+            if (partes.Length != 2 || partes[0].Length == 0 || partes[1].Length == 0 || !partes[1].Contains('.'))
+            {
+                throw new ArgumentException($"El email no es valido");
+            }
             var usuario = await _repository.GetByEmailAsync(dto.Email);
             if (usuario == null)
             {
