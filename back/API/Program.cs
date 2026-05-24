@@ -37,45 +37,21 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IHasherService, HasherService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<JwtService>();
 
 // Repositorios
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 
 // Controllers
 builder.Services.AddControllers();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "API",
-        Version = "v1"
-    });
-
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Description = "Ingrese: Bearer {token}"
-    });
-    options.AddSecurityRequirement(document =>
-    {
-        return new OpenApiSecurityRequirement
-        {
-            [
-                new OpenApiSecuritySchemeReference("Bearer")
-            ] = new List<string>()
-        };
-    });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

@@ -8,6 +8,7 @@ namespace API.Context
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Producto> Productos { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -43,11 +44,28 @@ namespace API.Context
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.Nombre).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
-                entity.Property(u => u.Telefono).IsRequired().HasMaxLength(100);
+                entity.Property(u => u.Telefono).IsRequired().HasMaxLength(10);
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
                 entity.Property(u => u.Rol).HasMaxLength(20);
             });
 
+            modelBuilder.Entity<Pedido>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+                entity.Property(p=> p.NombreCliente).IsRequired().HasMaxLength(100);
+                entity.Property(p => p.EmailCliente).IsRequired().HasMaxLength(100);
+                entity.Property(p => p.TelefonoCliente).IsRequired().HasMaxLength(10);
+                entity.Property(p => p.Direccion).IsRequired().HasMaxLength(100);
+                entity.Property(p => p.Subtotal).IsRequired();
+                entity.Property(p => p.Total).IsRequired();
+                entity.Property(p => p.PedidoFecha).IsRequired();
+                entity.Property(p => p.FechaEntrega).IsRequired();
+                entity.Property(p => p.Total).IsRequired();
+                entity.HasOne(p => p.Usuario)
+                    .WithMany(u => u.Pedidos)
+                    .HasForeignKey(p => p.UsuarioId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
         }
     }
 }
