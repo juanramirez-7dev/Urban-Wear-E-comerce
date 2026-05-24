@@ -1,22 +1,21 @@
+using API.DTOs.Variante;
 using System.ComponentModel.DataAnnotations;
 
 namespace API.DTOs.Producto
 {
     public class ProductoCreateRequestDto
     {
-        [Required(ErrorMessage = "El nombre del producto es requerido")]
         public string Nombre { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La descripción del producto es requerida")]
         public string Descripcion { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El precio del producto es requerido")]
         public double Precio { get; set; }
 
-        [Required(ErrorMessage = "La imagen principal es requerida")]
-        public string ImagenPrincipal { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La categoría es requerida")]
+        public IFormFile ImagenPrincipal { get; set; } = null!;
         public Guid CategoriaId { get; set; }
+
+        public ICollection<IFormFile> Imagenes { get; set; } = new List<IFormFile>();
+        public string Variantes { get; set; } = string.Empty; // JSON string que representa una lista de variantes
+
     }
 }

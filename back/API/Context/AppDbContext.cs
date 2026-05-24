@@ -8,6 +8,8 @@ namespace API.Context
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Producto> Productos { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<ProductoVariante> ProductoVariantes { get; set; }
+        public DbSet<ProductoImagen> ProductoImagenes { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -48,6 +50,27 @@ namespace API.Context
                 entity.Property(u => u.Rol).HasMaxLength(20);
             });
 
+            modelBuilder.Entity<ProductoVariante>(entity =>
+            {
+                entity.HasKey(pv => pv.Id);
+                entity.Property(pv => pv.Stock).IsRequired();
+                entity.Property(pv => pv.Sku).IsRequired().HasMaxLength(100);
+                entity.Property(pv => pv.Talla).IsRequired();
+                entity.HasOne(pv => pv.Producto)
+                    .WithMany(p => p.Variantes)
+                    .HasForeignKey(pv => pv.ProductoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ProductoImagen>(entity =>
+            {
+                entity.HasKey(pi => pi.Id);
+                entity.Property(pi => pi.Url).IsRequired().HasMaxLength(500);
+                entity.HasOne(pi => pi.Producto)
+                    .WithMany(p => p.Imagenes)
+                    .HasForeignKey(pi => pi.ProductoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

@@ -1,8 +1,11 @@
+using API.DTOs.Imagen;
 using API.DTOs.Producto;
+using API.DTOs.Variante;
 using API.Interfaces.Services;
 using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace API.Controllers
 {
@@ -36,11 +39,8 @@ namespace API.Controllers
             {
                 Id = p.Id,
                 Nombre = p.Nombre,
-                Descripcion = p.Descripcion,
                 Precio = p.Precio,
                 ImagenPrincipal = p.ImagenPrincipal,
-                CategoriaId = p.CategoriaId,
-                CategoriaNombre = p.Categoria?.Nombre ?? string.Empty
             });
 
             var response = new ProductoPagedResponseDto
@@ -55,21 +55,30 @@ namespace API.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<ProductoResponseDto>> GetById(Guid id)
+        public async Task<ActionResult<ProductoDetalleResponseDto>> GetById(Guid id)
         {
             try
             {
                 var producto = await _productoService.GetByIdAsync(id);
 
-                var response = new ProductoResponseDto
+                var response = new ProductoDetalleResponseDto
                 {
                     Id = producto.Id,
                     Nombre = producto.Nombre,
                     Descripcion = producto.Descripcion,
                     Precio = producto.Precio,
                     ImagenPrincipal = producto.ImagenPrincipal,
-                    CategoriaId = producto.CategoriaId,
-                    CategoriaNombre = producto.Categoria?.Nombre ?? string.Empty
+                    Imagenes = producto.Imagenes.Select(i => new ProductImageResponseDto
+                    {
+                        Id = i.Id,
+                        Url = i.Url
+                    }).ToList(),
+                    Variantes = producto.Variantes.Select(v => new ProductoVarianteResponseDto
+                    {
+                        Id = v.Id,
+                        Stock = v.Stock,
+                        Talla = v.Talla
+                    }).ToList()
                 };
 
                 return Ok(response);
@@ -81,8 +90,8 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ProductoResponseDto>> Create([FromBody] ProductoCreateRequestDto request)
+        //[Authorize(Roles = "Admin")]
+        public async Task<ActionResult<ProductoResponseDto>> Create([FromForm] ProductoCreateRequestDto request)
         {
             try
             {
@@ -91,21 +100,31 @@ namespace API.Controllers
                     Nombre = request.Nombre,
                     Descripcion = request.Descripcion,
                     Precio = request.Precio,
-                    ImagenPrincipal = request.ImagenPrincipal,
                     CategoriaId = request.CategoriaId
                 };
 
-                var created = await _productoService.AddAsync(producto);
+                var variantes = JsonSerializer.Deserialize<List<ProductoVarianteRequestDto>>(request.Variantes);
+                Console.WriteLine(variantes);
+                if (variantes == null || !variantes.Any())
+                {
+                    throw new InvalidOperationException("Variantes inválidas");
+                }
+
+                var variantesEntities = variantes.Select(v => new ProductoVariante
+                {
+                    Stock = v.Stock,
+                    Sku = v.Sku,
+                    Talla = v.Talla
+                }).ToList();
+
+                var created = await _productoService.AddAsync(producto, request.ImagenPrincipal, request.Imagenes, variantesEntities);
 
                 var response = new ProductoResponseDto
                 {
                     Id = created.Id,
                     Nombre = created.Nombre,
-                    Descripcion = created.Descripcion,
                     Precio = created.Precio,
-                    ImagenPrincipal = created.ImagenPrincipal,
-                    CategoriaId = created.CategoriaId,
-                    CategoriaNombre = created.Categoria?.Nombre ?? string.Empty
+                    ImagenPrincipal = created.ImagenPrincipal
                 };
 
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
@@ -122,7 +141,7 @@ namespace API.Controllers
 
         [HttpPut("{id:guid}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ProductoResponseDto>> Update(Guid id, [FromBody] ProductoUpdateRequestDto request)
+        public async Task<ActionResult> Update(Guid id, [FromBody] ProductoUpdateRequestDto request)
         {
             try
             {
@@ -136,20 +155,8 @@ namespace API.Controllers
                     CategoriaId = request.CategoriaId
                 };
 
-                var updated = await _productoService.UpdateAsync(producto);
-
-                var response = new ProductoResponseDto
-                {
-                    Id = updated.Id,
-                    Nombre = updated.Nombre,
-                    Descripcion = updated.Descripcion,
-                    Precio = updated.Precio,
-                    ImagenPrincipal = updated.ImagenPrincipal,
-                    CategoriaId = updated.CategoriaId,
-                    CategoriaNombre = updated.Categoria?.Nombre ?? string.Empty
-                };
-
-                return Ok(response);
+                await _productoService.UpdateAsync(producto);
+                return Ok();
             }
             catch (KeyNotFoundException ex)
             {

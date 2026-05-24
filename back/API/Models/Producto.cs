@@ -9,6 +9,8 @@
         public string ImagenPrincipal { get; set; } = string.Empty;
         public Guid CategoriaId { get; set; }
         public Categoria Categoria { get; set; } = null!;
+        public ICollection<ProductoVariante> Variantes { get; set; } = new List<ProductoVariante>();
+        public ICollection<ProductoImagen> Imagenes { get; set; } = new List<ProductoImagen>();
 
     }
 }

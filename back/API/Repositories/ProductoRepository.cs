@@ -50,7 +50,8 @@ namespace API.Repositories
         public async Task<Producto?> GetByIdAsync(Guid id)
         {
             return await _context.Productos
-                .Include(p => p.Categoria)
+                .Include(p => p.Imagenes)
+                .Include(p => p.Variantes)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 

@@ -37,45 +37,25 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IHasherService, HasherService>();
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 // Repositorios
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IProductoVarianteRepository, ProductoVarianteRepository>();
+builder.Services.AddScoped<IImagenRepository, ImagenRepository>();
 
 // Controllers
 builder.Services.AddControllers();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "API",
-        Version = "v1"
-    });
+builder.Services.AddSwaggerGen();
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Description = "Ingrese: Bearer {token}"
-    });
-    options.AddSecurityRequirement(document =>
-    {
-        return new OpenApiSecurityRequirement
-        {
-            [
-                new OpenApiSecuritySchemeReference("Bearer")
-            ] = new List<string>()
-        };
-    });
-});
+//Configuración para acceder al HttpContext en servicios
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -93,6 +73,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseStaticFiles();
     
 app.MapControllers();
 

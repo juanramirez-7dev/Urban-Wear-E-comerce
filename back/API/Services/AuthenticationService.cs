@@ -10,8 +10,8 @@ namespace API.Services
     {
         private readonly IUsuarioRepository _repository;
         private readonly IHasherService _hasherService;
-        private readonly JwtService _jwtService;
-        public AuthenticationService(IHasherService hasherService, IUsuarioRepository repository, JwtService jwtService)
+        private readonly IJwtService _jwtService;
+        public AuthenticationService(IHasherService hasherService, IUsuarioRepository repository, IJwtService jwtService)
         {
             _hasherService = hasherService;
             _repository = repository;
