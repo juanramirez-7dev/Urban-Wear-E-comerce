@@ -1,3 +1,4 @@
+using API.Context;
 using API.Interfaces.Repositories;
 using API.Interfaces.Services;
 using API.Models;
@@ -11,13 +12,15 @@ namespace API.Services
         private readonly IProductoVarianteRepository _varianteRepository;
         private readonly IFileService _fileService;
         private readonly IImagenRepository _imagenrepository;
+        private readonly AppDbContext _context;
 
         public ProductoService(
                 IProductoRepository repository,
                 ICategoriaRepository categoryRepository,
                 IProductoVarianteRepository varianteRepository,
                 IFileService fileService,
-                IImagenRepository imagenrepository
+                IImagenRepository imagenrepository,
+                AppDbContext context
             )
         {
             _repository = repository;
@@ -25,6 +28,7 @@ namespace API.Services
             _fileService = fileService;
             _varianteRepository = varianteRepository;
             _imagenrepository = imagenrepository;
+            _context = context;
         }
 
 
@@ -64,57 +68,47 @@ namespace API.Services
                 throw new KeyNotFoundException($"No existe la categoria con el ID {producto.CategoriaId}");
             }
 
-            var productoId = Guid.NewGuid();
-
-            string imagenPrincipalUrl;
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                imagenPrincipalUrl = await _fileService.SaveFileAsync(ImagenPrincipal);
-            }
-            catch( ArgumentException ex )
-            {
-                throw new InvalidOperationException(ex.Message);
-            }
-            catch ( Exception ex )
-            {
-                throw new InvalidOperationException(ex.Message);
-            }
+                // Guardar el producto
+                var productoId = Guid.NewGuid();
+                string imagenPrincipalUrl = await _fileService.SaveFileAsync(ImagenPrincipal);
+                producto.Id = productoId;
+                producto.ImagenPrincipal = imagenPrincipalUrl;
+                await _repository.AddAsync(producto);
 
-            producto.Id = productoId;
-            producto.ImagenPrincipal = imagenPrincipalUrl;
-            await _repository.AddAsync(producto);
-
-            try
-            {
-
+                // Guardar las imágenes del producto
                 foreach (var file in Imagenes)
                 {
                     string url = await _fileService.SaveFileAsync(file);
                     var productoImagen = new ProductoImagen
-                    { 
+                    {
                         Url = url,
                         ProductoId = productoId
                     };
                     await _imagenrepository.AddAsync(productoImagen);
                 }
+
+                // Guardar las variantes del producto
+                foreach (var variante in Variantes)
+                {
+                    variante.ProductoId = productoId;
+                    await _varianteRepository.AddAsync(variante);
+                }
+                    
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return producto;
+
             }
-            catch (ArgumentException ex)
+            catch (InvalidOperationException)
             {
-                throw new InvalidOperationException(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException(ex.Message);
+                await transaction.RollbackAsync();
+                throw;
             }
 
-            foreach (var variante in Variantes)
-            {
-                variante.ProductoId = productoId;
-                await _varianteRepository.AddAsync(variante);
-            }
-
-            return producto;
         }
 
         public async Task UpdateAsync(Producto producto)

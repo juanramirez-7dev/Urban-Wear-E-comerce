@@ -2,12 +2,14 @@ using API.Context;
 using API.Interfaces.Repositories;
 using API.Interfaces.Services;
 using API.Repositories;
+using API.Seeders;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Front", policy =>
+    {
+        policy.WithOrigins(builder.Configuration["Cors:AllowedOrigins"]!)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 // Servicios
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
@@ -48,16 +61,32 @@ builder.Services.AddScoped<IProductoVarianteRepository, ProductoVarianteReposito
 builder.Services.AddScoped<IImagenRepository, ImagenRepository>();
 
 // Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddJsonOptions( options =>
+        {
+            options.JsonSerializerOptions.Converters
+           .Add(new JsonStringEnumConverter());  // convierte enums a string en JSON
+        });
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//Configuración para acceder al HttpContext en servicios
-builder.Services.AddHttpContextAccessor();
-
 var app = builder.Build();
+
+// Seed de datos y migraciones
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider
+        .GetRequiredService<AppDbContext>();
+
+    var fileService = scope.ServiceProvider
+        .GetRequiredService<IFileService>();
+
+
+    await context.Database.MigrateAsync(); // Crea la BD + aplica migraciones
+    await DataSeeder.SeedAsync(context, fileService);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -70,11 +99,13 @@ app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
+app.UseCors("Front");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseStaticFiles();
     
 app.MapControllers();
 

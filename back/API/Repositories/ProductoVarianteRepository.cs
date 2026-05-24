@@ -16,7 +16,6 @@ namespace API.Repositories
         public async Task AddAsync(ProductoVariante enity)
         {
             await _context.ProductoVariantes.AddAsync(enity);
-            await _context.SaveChangesAsync();
         }
         public async Task UpdateAsync(ProductoVariante enity)
         {

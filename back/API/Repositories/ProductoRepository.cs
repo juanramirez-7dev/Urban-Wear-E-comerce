@@ -58,7 +58,6 @@ namespace API.Repositories
         public async Task AddAsync(Producto producto)
         {
             await _context.Productos.AddAsync(producto);
-            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Producto producto)
