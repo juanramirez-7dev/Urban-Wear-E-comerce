@@ -1,0 +1,12 @@
+﻿using API.Models;
+
+namespace API.Interfaces.Services
+{
+    public interface IPedidoService
+    {
+        Task<IEnumerable<Pedido>> GetAllAsync();
+        Task<IEnumerable<Pedido>> GetAllByUsuarioIdAsync(Guid userId);
+        Task<Pedido> GetByIdAsync(Guid id);
+        Task<Pedido> AddAsync(Pedido pedido);
+    }
+}

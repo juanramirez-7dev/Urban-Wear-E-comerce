@@ -4,6 +4,7 @@ using API.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260524024107_tabla pedido y relacion con usuario")]
+    partial class tablapedidoyrelacionconusuario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,58 +131,6 @@ namespace API.Migrations
                     b.ToTable("Productos");
                 });
 
-            modelBuilder.Entity("API.Models.ProductoImagen", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("ProductoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductoId");
-
-                    b.ToTable("ProductoImagenes");
-                });
-
-            modelBuilder.Entity("API.Models.ProductoVariante", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("ProductoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Sku")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Talla")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductoId");
-
-                    b.ToTable("ProductoVariantes");
-                });
-
             modelBuilder.Entity("API.Models.Usuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -236,38 +187,14 @@ namespace API.Migrations
                     b.Navigation("Categoria");
                 });
 
-            modelBuilder.Entity("API.Models.ProductoImagen", b =>
-                {
-                    b.HasOne("API.Models.Producto", "Producto")
-                        .WithMany("Imagenes")
-                        .HasForeignKey("ProductoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Producto");
-                });
-
-            modelBuilder.Entity("API.Models.ProductoVariante", b =>
-                {
-                    b.HasOne("API.Models.Producto", "Producto")
-                        .WithMany("Variantes")
-                        .HasForeignKey("ProductoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Producto");
-                });
-
             modelBuilder.Entity("API.Models.Categoria", b =>
                 {
                     b.Navigation("Productos");
                 });
 
-            modelBuilder.Entity("API.Models.Producto", b =>
+            modelBuilder.Entity("API.Models.Usuario", b =>
                 {
-                    b.Navigation("Imagenes");
-
-                    b.Navigation("Variantes");
+                    b.Navigation("Pedidos");
                 });
 #pragma warning restore 612, 618
         }
