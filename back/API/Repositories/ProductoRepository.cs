@@ -21,7 +21,7 @@ namespace API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<(IEnumerable<Producto> Items, int Total)> GetPagedAsync(int limit, int offset, Guid? categoriaId, decimal? precio)
+        public async Task<(IEnumerable<Producto> Items, int Total)> GetPagedAsync(int limit, int offset, Guid? categoriaId, decimal? min, decimal? max)
         {
             var query = _context.Productos
                 .Include(p => p.Categoria)
@@ -32,9 +32,14 @@ namespace API.Repositories
                 query = query.Where(p => p.CategoriaId == categoriaId);
             }
 
-            if (precio.HasValue)
+            if (min.HasValue)
             {
-                query = query.Where(p => (decimal)p.Precio == precio);
+                query = query.Where(p => (decimal)p.Precio >= min);
+            }
+
+            if (max.HasValue)
+            {
+                query = query.Where(p => (decimal)p.Precio <= max);
             }
 
             var total = await query.CountAsync();

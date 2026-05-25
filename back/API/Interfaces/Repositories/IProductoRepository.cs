@@ -5,7 +5,7 @@ namespace API.Interfaces.Repositories
     public interface IProductoRepository
     {
         Task<IEnumerable<Producto>> GetAllAsync();
-        Task<(IEnumerable<Producto> Items, int Total)> GetPagedAsync(int limit, int offset, Guid? categoriaId, decimal? precio);
+        Task<(IEnumerable<Producto> Items, int Total)> GetPagedAsync(int limit, int offset, Guid? categoriaId, decimal? min, decimal? max);
         Task<Producto?> GetByIdAsync(Guid id);
         Task AddAsync(Producto producto);
         Task UpdateAsync(Producto producto);

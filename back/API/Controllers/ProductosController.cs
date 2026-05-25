@@ -21,7 +21,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ProductoPagedResponseDto>> GetAll([FromQuery] int limit = 10, [FromQuery] int offset = 0, [FromQuery] Guid? categoriaId = null, [FromQuery] decimal? precio = null)
+        public async Task<ActionResult<ProductoPagedResponseDto>> GetAll([FromQuery] int limit = 10, [FromQuery] int offset = 0, [FromQuery] Guid? categoriaId = null, [FromQuery] decimal? min = null, [FromQuery] decimal? max = null)
         {
             if (limit <= 0)
             {
@@ -33,7 +33,7 @@ namespace API.Controllers
                 return BadRequest(new { message = "El parámetro offset no puede ser negativo." });
             }
 
-            var result = await _productoService.GetPagedAsync(limit, offset, categoriaId, precio);
+            var result = await _productoService.GetPagedAsync(limit, offset, categoriaId, min, max);
 
             var items = result.Items.Select(p => new ProductoResponseDto
             {

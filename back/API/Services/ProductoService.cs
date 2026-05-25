@@ -32,9 +32,9 @@ namespace API.Services
         }
 
 
-        public async Task<(IEnumerable<Producto> Items, int Total)> GetPagedAsync(int limit, int offset, Guid? categoriaId, decimal? precio)
+        public async Task<(IEnumerable<Producto> Items, int Total)> GetPagedAsync(int limit, int offset, Guid? categoriaId, decimal? min, decimal? max)
         {
-            return await _repository.GetPagedAsync(limit, offset, categoriaId, precio);
+            return await _repository.GetPagedAsync(limit, offset, categoriaId, min, max);
         }
 
         public async Task<Producto> GetByIdAsync(Guid id)
