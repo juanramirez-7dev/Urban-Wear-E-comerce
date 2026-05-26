@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { CartItem } from "../../types/cartTypes";
 
 export interface OrderSummaryProps {
@@ -47,9 +48,12 @@ export function OrderSummary({ items }: Readonly<OrderSummaryProps>) {
           </span>
         </div>
       </div>
-      <button className="mt-6 w-full bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 hover:opacity-90 active:scale-[0.98] transition-all">
+      <Link
+        to="/checkout"
+        className="mt-6 w-full inline-flex items-center justify-center bg-primary text-on-primary font-label-md uppercase tracking-widest py-4 hover:opacity-90 active:scale-[0.98] transition-all"
+      >
         Checkout
-      </button>
+      </Link>
     </aside>
   );
 }

@@ -20,7 +20,7 @@ export function AuthProvider({ children } : AuthContextPropsType) {
 
   const { data: user = null, isLoading: isLoadingGetMe } = useQuery<MeResponseType | null >({
     queryKey: ["user", token],
-    queryFn: () => me(token),
+    queryFn: () => me(token!),
     enabled: !!token,
   })
 

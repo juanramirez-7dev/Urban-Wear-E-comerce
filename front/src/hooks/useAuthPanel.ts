@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState, type SubmitEvent } from "react";
 import { useAuth } from "./useAuth";
 import { useNavigate } from "react-router";
-import { useQueryClient } from "@tanstack/react-query";
 
 export type AuthMode = "login" | "register";
 
@@ -17,7 +16,6 @@ export const useAuthPanel = (): UseAuthPanelResult => {
   const [mode, setMode] = useState<AuthMode>("login");
   const { loginMutate, registerMutate } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const handleLoginSubmit = useCallback(
     (event: SubmitEvent<HTMLFormElement>) => {
@@ -31,15 +29,16 @@ export const useAuthPanel = (): UseAuthPanelResult => {
       }
 
         loginMutate.mutate({ email, password }, {
-          onSuccess: () => {
-            navigate("/");
-            queryClient.invalidateQueries({
-              queryKey: ["user"]
-            });
+          onSuccess: (data) => {
+            if (data.rol === "Cliente") {
+              navigate("/");
+            } else {
+              navigate("/admin");
+            }
           }
         });
     },
-    [loginMutate, navigate, queryClient]
+    [loginMutate, navigate]
   );
 
   const handleRegisterSubmit = useCallback(

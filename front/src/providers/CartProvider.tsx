@@ -2,7 +2,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { CartContext } from "../context/CartContext";
 import { useAuth } from "../hooks/useAuth";
 import type { Cart, CartItem, CartItemRequest } from "../types/cartTypes";
-import { authCartService } from "../services/AuthcartService";
+import { authCartService } from "../services/AuthCartService";
 import { useGuestCart } from "../hooks/useGuestCart";
 import type { ReactNode } from "react";
 

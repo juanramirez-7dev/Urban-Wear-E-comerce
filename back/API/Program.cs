@@ -94,9 +94,12 @@ using (var scope = app.Services.CreateScope())
     var fileService = scope.ServiceProvider
         .GetRequiredService<IFileService>();
 
+    var hasherService = scope.ServiceProvider
+        .GetRequiredService<IHasherService>();
+
 
     await context.Database.MigrateAsync(); // Crea la BD + aplica migraciones
-    await DataSeeder.SeedAsync(context, fileService);
+    await DataSeeder.SeedAsync(context, fileService, hasherService);
 }
 
 // Configure the HTTP request pipeline.

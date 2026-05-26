@@ -38,7 +38,8 @@ namespace API.Services
 
             var response = new LoginResponseDto
             {
-                Token = token
+                Token = token,
+                Rol = usuario.Rol
             };
             return response;
         }

@@ -2,14 +2,31 @@
 using API.Enums;
 using API.Interfaces.Services;
 using API.Models;
+using API.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Seeders
 {
     public static class DataSeeder
     {
-        public static async Task SeedAsync(AppDbContext context, IFileService fileService)
+        public static async Task SeedAsync(AppDbContext context, IFileService fileService, IHasherService hasherService)
         {
+
+            if (!await context.Usuarios.AnyAsync())
+            {
+                string passwordHash = hasherService.HashPassword("admin123456789");
+                var adminUser = new Usuario
+                {
+                    Id = Guid.NewGuid(),
+                    Nombre = "Admin",
+                    Email = "admin@gmail.com",
+                    Telefono = "9999999999",
+                    Rol = RolUsuario.Admin,
+                    PasswordHash = passwordHash
+                };
+                await context.Usuarios.AddAsync(adminUser);
+                await context.SaveChangesAsync();
+            }
 
             // Solo se ejecuta si no hay Categorias (datos en Db)
             if (await context.Categorias.AnyAsync()) return;

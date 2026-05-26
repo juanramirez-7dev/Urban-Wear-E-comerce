@@ -14,12 +14,10 @@ namespace API.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthenticationService _service;
-        private readonly IUsuarioService _usuarioService;
 
-        public AuthenticationController(IAuthenticationService service, IUsuarioService usuarioService)
+        public AuthenticationController(IAuthenticationService service)
         {
             _service = service;
-            _usuarioService = usuarioService;
         }
 
         [HttpPost("login")]

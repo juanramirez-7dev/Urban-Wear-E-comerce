@@ -5,13 +5,15 @@ type LoginRequestType = {
 
 type LoginResponseType = {
   token: string,
+  rol: string
 }
 
 type MeResponseType = {
   id: string,
   email: string,
   name: string,
-  role: string
+  role: string,
+  telefono?: string
 }
 
 
