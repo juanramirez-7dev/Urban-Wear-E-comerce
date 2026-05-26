@@ -1,8 +1,9 @@
-import { type ReactNode } from "react"
+import { type ReactNode, useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { AuthContext } from "../context/AuthContext"
-import { login, me } from "../services/authService"
+import { login, me, register } from "../services/authService"
 import type { MeResponseType, LoginRequestType, LoginResponseType } from "../types/authTypes"
+import type { User, RegisterUser } from "../types/userTypes"
 
 type AuthContextPropsType = {
   children: ReactNode
@@ -12,10 +13,13 @@ export function AuthProvider({ children } : AuthContextPropsType) {
 
   const queryClient = useQueryClient()
 
-  const token = localStorage.getItem("token") ? JSON.parse(localStorage.getItem("token") as string).token : null
+  const [token, setToken] = useState<string | null>(() => {
+    const rawToken = localStorage.getItem("token")
+    return rawToken ? JSON.parse(rawToken).token : null
+  })
 
   const { data: user = null, isLoading: isLoadingGetMe } = useQuery<MeResponseType | null >({
-    queryKey: ["user"],
+    queryKey: ["user", token],
     queryFn: () => me(token),
     enabled: !!token,
   })
@@ -25,14 +29,20 @@ export function AuthProvider({ children } : AuthContextPropsType) {
     mutationFn: login,
     onSuccess: (data) => {
       localStorage.setItem("token", JSON.stringify(data))
+      setToken(data.token)
     }
   })
 
+
   const logout = () => {
     localStorage.removeItem("token")
-    queryClient.setQueryData(["user"], null)
+    setToken(null)
+    queryClient.removeQueries({ queryKey: ["user"] })
   }
 
+  const registerMutate = useMutation<User, Error, RegisterUser>({
+    mutationFn: register,
+  })
 
   return (
     <AuthContext.Provider value={{
@@ -40,7 +50,8 @@ export function AuthProvider({ children } : AuthContextPropsType) {
       user,
       loginMutate,
       isLoadingGetMe,
-      logout
+      logout,
+      registerMutate
     }}>
       {children}
     </AuthContext.Provider>
