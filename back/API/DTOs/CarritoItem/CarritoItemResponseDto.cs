@@ -10,7 +10,7 @@ namespace API.DTOs.CarritoItem
         public string Nombre { get; set; } = string.Empty;
         public Talla Talla { get; set; }
         public int Cantidad { get; set; }
-        public double Precio { get; set; }
+        public decimal Precio { get; set; }
         public int ProductoVarianteId { get; set; }
 
     }

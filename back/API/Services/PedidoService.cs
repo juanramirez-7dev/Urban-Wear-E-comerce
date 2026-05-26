@@ -1,7 +1,9 @@
-﻿using API.Enums;
+﻿using API.Context;
+using API.Enums;
 using API.Interfaces.Repositories;
 using API.Interfaces.Services;
 using API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
 {
@@ -9,10 +11,16 @@ namespace API.Services
     {
         private readonly IPedidoRepository _repository;
         private readonly IUsuarioRepository _usuarioRepository;
-        public PedidoService(IPedidoRepository repository, IUsuarioRepository usuarioRepository)
+        private readonly IProductoVarianteRepository _productoVarianteRepository;
+        private readonly IPedidoItemRepository _pedidoItemRepository;
+        private readonly AppDbContext _context;
+        public PedidoService(IPedidoRepository repository, IUsuarioRepository usuarioRepository, IProductoVarianteRepository productoVarianteRepository,IPedidoItemRepository pedidoItemRepository,AppDbContext context)
         {
             _repository = repository;
             _usuarioRepository = usuarioRepository;
+            _productoVarianteRepository = productoVarianteRepository;
+            _context = context;
+            _pedidoItemRepository = pedidoItemRepository;
         }
 
         public async Task<IEnumerable<Pedido>> GetAllAsync()
@@ -56,40 +64,81 @@ namespace API.Services
 
             pedido.Id = Guid.NewGuid();
 
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            pedido.PedidoFecha = DateTime.UtcNow;
-            pedido.FechaEntrega = pedido.PedidoFecha.AddDays(7);
-
-            foreach (var item in pedido.ItemsPedido)
+            try
             {
-                if (item.Cantidad <= 0)
+
+                pedido.PedidoFecha = DateTime.UtcNow;
+                pedido.FechaEntrega = pedido.PedidoFecha.AddDays(7);
+
+                foreach (var item in pedido.ItemsPedido)
                 {
-                    throw new ArgumentException("La cantidad debe ser mayor que cero");
+                    var producto = await _productoVarianteRepository.GetByIdAsync(item.ProductoVarianteId);
+                    if (producto == null)
+                    {
+                        throw new KeyNotFoundException($"Producto variante con ID {item.ProductoVarianteId} no encontrado");
+                    }
+                    if (item.Cantidad <= 0)
+                    {
+                        throw new ArgumentException("La cantidad debe ser mayor que cero");
+                    }
+                    item.ProductoNombre = producto.Producto.Nombre;
+                    item.PrecioUnitario = producto.Producto.Precio;
+                    item.Talla = producto.Talla;
+                    item.PedidoId = pedido.Id;
+                    item.Subtotal = item.PrecioUnitario * item.Cantidad;
+                    if (!Enum.IsDefined(typeof(Talla), item.Talla))
+                    {
+                        throw new ArgumentException("La talla no es válida");
+                    }
+                    if (producto.Stock < item.Cantidad)
+                    {
+                        throw new InvalidOperationException($"No hay suficiente stock para el producto {producto.Producto.Nombre} en talla {producto.Talla}");
+                    }
+                    producto.Stock -= item.Cantidad;
                 }
-                if (item.PrecioUnitario < 0)
-                {
-                    throw new ArgumentException("El precio unitario no puede ser negativo");
-                }
-                if (string.IsNullOrWhiteSpace(item.ProductoNombre))
-                {
-                    throw new ArgumentException("El nombre del producto no puede estar vacío");
-                }
-                if (!Enum.IsDefined(typeof(Talla), item.Talla))
-                {
-                    throw new ArgumentException("La talla no es válida");
-                }
-                item.PedidoId = pedido.Id;
-                item.Subtotal = item.PrecioUnitario * item.Cantidad;
+
+                decimal totalCalculado = pedido.ItemsPedido.Sum(i => i.Subtotal);
+
+                pedido.Subtotal = totalCalculado;
+                pedido.Total = totalCalculado * 1.19m;
+
+
+                await _repository.AddAsync(pedido);
+                await transaction.CommitAsync();
+                return pedido;
             }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        public async Task<IEnumerable<PedidoItem>> GetItemsByPedidoIdAsync(Guid pedidoId)
+        {
+            var pedido = await GetByIdAsync(pedidoId);
+            if (pedido.ItemsPedido == null || !pedido.ItemsPedido.Any())
+            {
+                throw new InvalidOperationException("No se encontraron items en este pedido");
+            }
+            var items = await _pedidoItemRepository.GetItemsByPedidoIdAsync(pedidoId);
+            return items;
+        }
 
-            decimal totalCalculado = pedido.ItemsPedido.Sum(i => i.Subtotal);
-
-            pedido.Subtotal = totalCalculado;
-            pedido.Total = totalCalculado * 1.19m;
-
-            await _repository.AddAsync(pedido);
-
-            return pedido;
+        public async Task<PedidoItem> GetItemByIdOnPedidoAsync(int id, Guid idPedido)
+        {
+            var pedido = await GetByIdAsync(idPedido);
+            if (pedido == null)
+            {
+                throw new KeyNotFoundException("Pedido no encontrado");
+            }
+            var item = await _pedidoItemRepository.GetByIdAsync(id, idPedido);
+            if (item == null)
+            {
+                throw new KeyNotFoundException("Hubo un problema al encontrar el item en el pedido");
+            }
+            return item;
         }
     }
 }

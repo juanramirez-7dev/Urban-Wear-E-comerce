@@ -13,7 +13,7 @@ namespace API.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<PedidoItem>> GetAllByPedidoIdAsync(Guid pedidoId)
+        public async Task<IEnumerable<PedidoItem>> GetItemsByPedidoIdAsync(Guid pedidoId)
         {
             return await _context.ItemsPedido.Where(pi => pi.PedidoId == pedidoId).ToListAsync();
         }

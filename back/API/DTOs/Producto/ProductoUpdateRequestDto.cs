@@ -11,7 +11,7 @@ namespace API.DTOs.Producto
         public string Descripcion { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El precio del producto es requerido")]
-        public double Precio { get; set; }
+        public decimal Precio { get; set; }
 
         [Required(ErrorMessage = "La imagen principal es requerida")]
         public string ImagenPrincipal { get; set; } = string.Empty;

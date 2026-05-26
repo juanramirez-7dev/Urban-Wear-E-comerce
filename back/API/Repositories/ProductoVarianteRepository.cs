@@ -1,6 +1,7 @@
 ﻿using API.Context;
 using API.Interfaces.Repositories;
 using API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories
 {
@@ -15,7 +16,7 @@ namespace API.Repositories
 
         public async Task<ProductoVariante?> GetByIdAsync(int id)
         {
-            return await _context.ProductoVariantes.FindAsync(id);
+            return await _context.ProductoVariantes.Include(pv => pv.Producto).FirstOrDefaultAsync(pv => pv.Id == id);
         }
         public async Task AddAsync(ProductoVariante enity)
         {
