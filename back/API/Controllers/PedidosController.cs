@@ -1,10 +1,12 @@
 ﻿using API.DTOs.Pedido;
+using API.DTOs.PedidoItem;
 using API.Interfaces.Services;
 using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 
 namespace API.Controllers
 {
@@ -58,7 +60,15 @@ namespace API.Controllers
                     PedidoFecha = p.PedidoFecha,
                     FechaEntrega = p.FechaEntrega,
                     UsuarioId = p.UsuarioId,
-
+                    ItemsPedido = p.ItemsPedido.Select(i => new PedidoItemResponseDto
+                    {
+                        Id = i.Id,
+                        Cantidad = i.Cantidad,
+                        Subtotal = i.Subtotal,
+                        NombreProducto = i.ProductoNombre,
+                        Talla = i.Talla,
+                        PedidoId = i.PedidoId
+                    }).ToList()
                 });
                 return Ok(response);
             }
@@ -134,6 +144,10 @@ namespace API.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
         }
     }

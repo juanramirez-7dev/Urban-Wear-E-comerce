@@ -9,12 +9,15 @@ namespace API.Models
         public string EmailCliente { get; set; } = string.Empty;
         public string TelefonoCliente { get; set; } = string.Empty;
         public string Direccion { get; set; } = string.Empty;
-        public double Subtotal { get; set; } 
-        public double Total { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal Total { get; set; }
         public DateTime PedidoFecha { get; set; } = DateTime.UtcNow;
         public DateTime FechaEntrega { get; set; } = DateTime.UtcNow.AddDays(7);
 
         public Guid? UsuarioId { get; set; }
         public Usuario? Usuario { get; set; }
+
+        public ICollection<PedidoItem> ItemsPedido { get; set; } = new List<PedidoItem>();
     }
 }
+

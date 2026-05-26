@@ -4,6 +4,7 @@ using API.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260525184058_Tabla Pedido Item")]
+    partial class TablaPedidoItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,52 +24,6 @@ namespace API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("API.Models.Carrito", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UsuarioId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioId")
-                        .IsUnique();
-
-                    b.ToTable("Carritos");
-                });
-
-            modelBuilder.Entity("API.Models.CarritoItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CarritoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ProductoVarianteId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CarritoId");
-
-                    b.HasIndex("ProductoVarianteId");
-
-                    b.ToTable("CarritoItems");
-                });
 
             modelBuilder.Entity("API.Models.Categoria", b =>
                 {
@@ -119,18 +76,16 @@ namespace API.Migrations
                     b.Property<DateTime>("PedidoFecha")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal>("Subtotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("Subtotal")
+                        .HasColumnType("float");
 
                     b.Property<string>("TelefonoCliente")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<decimal>("Total")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("Total")
+                        .HasColumnType("float");
 
                     b.Property<Guid?>("UsuarioId")
                         .HasColumnType("uniqueidentifier");
@@ -300,36 +255,6 @@ namespace API.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("API.Models.Carrito", b =>
-                {
-                    b.HasOne("API.Models.Usuario", "Usuario")
-                        .WithOne("Carrito")
-                        .HasForeignKey("API.Models.Carrito", "UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("API.Models.CarritoItem", b =>
-                {
-                    b.HasOne("API.Models.Carrito", "Carrito")
-                        .WithMany("Items")
-                        .HasForeignKey("CarritoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("API.Models.ProductoVariante", "ProductoVariante")
-                        .WithMany("CarritoItems")
-                        .HasForeignKey("ProductoVarianteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Carrito");
-
-                    b.Navigation("ProductoVariante");
-                });
-
             modelBuilder.Entity("API.Models.Pedido", b =>
                 {
                     b.HasOne("API.Models.Usuario", "Usuario")
@@ -384,11 +309,6 @@ namespace API.Migrations
                     b.Navigation("Producto");
                 });
 
-            modelBuilder.Entity("API.Models.Carrito", b =>
-                {
-                    b.Navigation("Items");
-                });
-
             modelBuilder.Entity("API.Models.Categoria", b =>
                 {
                     b.Navigation("Productos");
@@ -408,19 +328,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Usuario", b =>
                 {
-                    b.Navigation("Pedidos");
-                });
-
-            modelBuilder.Entity("API.Models.ProductoVariante", b =>
-                {
-                    b.Navigation("CarritoItems");
-                });
-
-            modelBuilder.Entity("API.Models.Usuario", b =>
-                {
-                    b.Navigation("Carrito")
-                        .IsRequired();
-
                     b.Navigation("Pedidos");
                 });
 #pragma warning restore 612, 618

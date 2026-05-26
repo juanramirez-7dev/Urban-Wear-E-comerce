@@ -11,8 +11,10 @@ namespace API.Context
         public DbSet<Pedido> Pedidos { get; set; }
         public DbSet<ProductoVariante> ProductoVariantes { get; set; }
         public DbSet<ProductoImagen> ProductoImagenes { get; set; }
+        public DbSet<PedidoItem> ItemsPedido { get; set; }
         public DbSet<Carrito> Carritos { get; set; }
         public DbSet<CarritoItem> CarritoItems { get; set; }
+
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -60,8 +62,8 @@ namespace API.Context
                 entity.Property(p => p.EmailCliente).IsRequired().HasMaxLength(100);
                 entity.Property(p => p.TelefonoCliente).IsRequired().HasMaxLength(10);
                 entity.Property(p => p.Direccion).IsRequired().HasMaxLength(100);
-                entity.Property(p => p.Subtotal).IsRequired();
-                entity.Property(p => p.Total).IsRequired();
+                entity.Property(p => p.Subtotal).HasPrecision(18, 2).IsRequired();
+                entity.Property(p => p.Total).HasPrecision(18, 2).IsRequired();
                 entity.Property(p => p.PedidoFecha).IsRequired();
                 entity.Property(p => p.FechaEntrega).IsRequired();
                 entity.Property(p => p.Total).IsRequired();
@@ -91,6 +93,21 @@ namespace API.Context
                     .HasForeignKey(pi => pi.ProductoId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<PedidoItem>(entity =>
+            {
+                entity.HasKey(pi => pi.Id);
+                entity.Property(pi => pi.ProductoNombre).IsRequired().HasMaxLength(50);
+                entity.Property(pi => pi.Cantidad).IsRequired();
+                entity.Property(pi => pi.PrecioUnitario).HasPrecision(18, 2).IsRequired();
+                entity.Property(pi => pi.Talla).IsRequired();
+                entity.Property(pi => pi.Subtotal).HasPrecision(18, 2).IsRequired();
+                entity.HasOne(pi => pi.Pedido)
+                    .WithMany(p => p.ItemsPedido)
+                    .HasForeignKey(pi => pi.PedidoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
 
             modelBuilder.Entity<Carrito>(entity =>
             {

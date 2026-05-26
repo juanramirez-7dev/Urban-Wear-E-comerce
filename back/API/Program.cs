@@ -56,6 +56,8 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IHasherService, HasherService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IPedidoItemService, PedidoItemService>();
 builder.Services.AddScoped<ICarritoService, CarritoService>();
 
 // Repositorios
@@ -64,6 +66,8 @@ builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IProductoVarianteRepository, ProductoVarianteRepository>();
 builder.Services.AddScoped<IImagenRepository, ImagenRepository>();
+builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<IPedidoItemRepository, PedidoItemRepository>();
 builder.Services.AddScoped<ICarritoRepository, CarritoRepository>();
 builder.Services.AddScoped<ICarritoItemRepository, CarritoItemRepository>();
 

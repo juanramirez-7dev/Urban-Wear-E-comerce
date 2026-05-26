@@ -1,4 +1,6 @@
-﻿namespace API.DTOs.Pedido
+﻿using API.DTOs.PedidoItem;
+
+namespace API.DTOs.Pedido
 {
     public class PedidoResponseDto
     {
@@ -13,5 +15,6 @@
         public DateTime FechaEntrega { get; set; } = DateTime.UtcNow.AddDays(7);
 
         public Guid? UsuarioId { get; set; }
+        public IEnumerable<PedidoItemResponseDto> ItemsPedido { get; set; } = new List<PedidoItemResponseDto>();
     }
 }
