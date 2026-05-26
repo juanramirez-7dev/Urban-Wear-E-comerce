@@ -11,5 +11,6 @@ namespace API.Models
         public Talla Talla { get; set; }
         public Guid ProductoId { get; set; }
         public Producto Producto { get; set; } = null!;
+        public ICollection<CarritoItem> CarritoItems { get; set; } = new List<CarritoItem>();
     }
 }

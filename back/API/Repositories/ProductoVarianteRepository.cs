@@ -13,10 +13,13 @@ namespace API.Repositories
             _context = context;
         }
 
+        public async Task<ProductoVariante?> GetByIdAsync(int id)
+        {
+            return await _context.ProductoVariantes.FindAsync(id);
+        }
         public async Task AddAsync(ProductoVariante enity)
         {
             await _context.ProductoVariantes.AddAsync(enity);
-            await _context.SaveChangesAsync();
         }
         public async Task UpdateAsync(ProductoVariante enity)
         {

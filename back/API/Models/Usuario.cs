@@ -11,5 +11,6 @@ namespace API.Models
         public string PasswordHash { get; set; } = string.Empty;
         public RolUsuario Rol { get; set; } = RolUsuario.Cliente;
         public ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+        public Carrito Carrito { get; set; } = null!;
     }
 }

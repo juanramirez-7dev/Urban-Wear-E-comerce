@@ -12,6 +12,8 @@ namespace API.Context
         public DbSet<ProductoVariante> ProductoVariantes { get; set; }
         public DbSet<ProductoImagen> ProductoImagenes { get; set; }
         public DbSet<PedidoItem> ItemsPedido { get; set; }
+        public DbSet<Carrito> Carritos { get; set; }
+        public DbSet<CarritoItem> CarritoItems { get; set; }
 
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -106,6 +108,30 @@ namespace API.Context
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+
+            modelBuilder.Entity<Carrito>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.CreatedDate).IsRequired();
+                entity.HasOne(c => c.Usuario)
+                    .WithOne(u => u.Carrito)
+                    .HasForeignKey<Carrito>(c => c.UsuarioId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CarritoItem>(entity =>
+            {
+                entity.HasKey(ci => ci.Id);
+                entity.Property(ci => ci.Cantidad).IsRequired();
+                entity.HasOne(ci => ci.Carrito)
+                    .WithMany(c => c.Items)
+                    .HasForeignKey(ci => ci.CarritoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(ci => ci.ProductoVariante)
+                    .WithMany(pv => pv.CarritoItems)
+                    .HasForeignKey(ci => ci.ProductoVarianteId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

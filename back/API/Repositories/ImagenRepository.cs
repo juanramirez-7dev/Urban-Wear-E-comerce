@@ -16,8 +16,8 @@ namespace API.Repositories
 
         public async Task AddAsync(ProductoImagen entity)
         {
-            _context.ProductoImagenes.Add(entity);
-            await _context.SaveChangesAsync();
+            await _context.ProductoImagenes.AddAsync(entity);
+            
         }
     }
 }

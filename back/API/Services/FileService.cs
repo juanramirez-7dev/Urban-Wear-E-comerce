@@ -5,20 +5,21 @@ namespace API.Services
     public class FileService : IFileService
     {
         private readonly IWebHostEnvironment _environment;
-        private readonly IHttpContextAccessor _httpContext;
+        private readonly IConfiguration _configuration;
 
         public FileService(
             IWebHostEnvironment environment,
-            IHttpContextAccessor httpContext)
+            IConfiguration configuration
+         )
         {
             _environment = environment;
-            _httpContext = httpContext;
+            _configuration = configuration;
         }
 
         public async Task<string> SaveFileAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                throw new ArgumentException("Archivo inválido");
+                throw new InvalidOperationException("Archivo inválido");
 
             string[] allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
 
@@ -27,31 +28,72 @@ namespace API.Services
                 .ToLower();
 
             if (!allowedExtensions.Contains(extension))
-                throw new Exception("Tipo de archivo no permitido");
+                throw new InvalidOperationException("Tipo de archivo no permitido");
 
             if (file.Length > 5 * 1024 * 1024)
-                throw new Exception("Archivo demasiado grande");
+                throw new InvalidOperationException("Archivo demasiado grande");
 
-            string rootPath = _environment.WebRootPath ?? "wwwroot";
+            return await SaveAsyn(
+                    file.OpenReadStream(),
+                    Path.GetExtension(file.FileName)
+                );
+        }
 
-            string uploadPath = Path.Combine(rootPath, "uploads");
+        public async Task<string> SaveFileLocalAsync(string filePath)
+        {
+
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("No se encontró la imagen.");
+
+            string[] allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+
+            string extension = Path
+                .GetExtension(filePath)
+                .ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+                throw new InvalidOperationException("Tipo de archivo no permitido");
+
+            using var stream = new FileStream(
+                filePath,
+                FileMode.Open
+            );
+
+            return await SaveAsyn(
+                     stream,
+                     Path.GetExtension(filePath)
+                 );
+
+        }
+
+        private async Task<string> SaveAsyn(Stream stream, string extension)
+        {
+            string fileName = $"{Guid.NewGuid()}{extension}";
+
+            string uploadPath = Path.Combine(
+                _environment.WebRootPath!,
+                "uploads"
+            );
 
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
 
-            string fileName = $"{Guid.NewGuid()}{extension}";
+            string destinationPath = Path.Combine(
+                uploadPath,
+                fileName
+            );
 
-            string filePath = Path.Combine(uploadPath, fileName);
+            using var destinationStream = new FileStream(
+                destinationPath,
+                FileMode.Create
+            );
 
-            using var stream = new FileStream(filePath, FileMode.Create);
+            await stream.CopyToAsync(destinationStream);
 
-            await file.CopyToAsync(stream);
-
-            var request = _httpContext.HttpContext!.Request;
-
-            string baseUrl = $"{request.Scheme}://{request.Host}";
+            string baseUrl = _configuration["BaseUrl:development"]!;
 
             return $"{baseUrl}/uploads/{fileName}";
         }
+
     }
 }
