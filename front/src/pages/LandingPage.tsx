@@ -19,7 +19,6 @@ export default function LandingPage() {
           label={featured.label}
           title={featured.title}
           viewAllLabel={featured.viewAllLabel}
-          products={featured.products}
         />
         <LandingQuote text={quote.text} label={quote.label} />
       </main>

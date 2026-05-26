@@ -14,13 +14,9 @@ type MeResponseType = {
   role: string
 }
 
-type ErrorResponseType = {
-  message: string
-}
 
 export type {
   LoginRequestType,
   LoginResponseType,
   MeResponseType,
-  ErrorResponseType
 }
