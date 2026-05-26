@@ -4,6 +4,7 @@ using API.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526034837_double a decimal in other tables")]
+    partial class doubleadecimalinothertables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +42,7 @@ namespace API.Migrations
                     b.HasIndex("UsuarioId")
                         .IsUnique();
 
-                    b.ToTable("Carritos", (string)null);
+                    b.ToTable("Carritos");
                 });
 
             modelBuilder.Entity("API.Models.CarritoItem", b =>
@@ -65,7 +68,7 @@ namespace API.Migrations
 
                     b.HasIndex("ProductoVarianteId");
 
-                    b.ToTable("CarritoItems", (string)null);
+                    b.ToTable("CarritoItems");
                 });
 
             modelBuilder.Entity("API.Models.Categoria", b =>
@@ -89,7 +92,7 @@ namespace API.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categorias", (string)null);
+                    b.ToTable("Categorias");
                 });
 
             modelBuilder.Entity("API.Models.Pedido", b =>
@@ -139,7 +142,7 @@ namespace API.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Pedidos", (string)null);
+                    b.ToTable("Pedidos");
                 });
 
             modelBuilder.Entity("API.Models.PedidoItem", b =>
@@ -179,7 +182,7 @@ namespace API.Migrations
 
                     b.HasIndex("PedidoId");
 
-                    b.ToTable("ItemsPedido", (string)null);
+                    b.ToTable("ItemsPedido");
                 });
 
             modelBuilder.Entity("API.Models.Producto", b =>
@@ -214,7 +217,7 @@ namespace API.Migrations
 
                     b.HasIndex("CategoriaId");
 
-                    b.ToTable("Productos", (string)null);
+                    b.ToTable("Productos");
                 });
 
             modelBuilder.Entity("API.Models.ProductoImagen", b =>
@@ -237,7 +240,7 @@ namespace API.Migrations
 
                     b.HasIndex("ProductoId");
 
-                    b.ToTable("ProductoImagenes", (string)null);
+                    b.ToTable("ProductoImagenes");
                 });
 
             modelBuilder.Entity("API.Models.ProductoVariante", b =>
@@ -266,7 +269,7 @@ namespace API.Migrations
 
                     b.HasIndex("ProductoId");
 
-                    b.ToTable("ProductoVariantes", (string)null);
+                    b.ToTable("ProductoVariantes");
                 });
 
             modelBuilder.Entity("API.Models.Usuario", b =>
@@ -301,7 +304,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Usuarios", (string)null);
+                    b.ToTable("Usuarios");
                 });
 
             modelBuilder.Entity("API.Models.Carrito", b =>

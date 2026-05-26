@@ -22,17 +22,30 @@ namespace API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<Pedido>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PedidoResponseDto>>> GetAll()
         {
-            try
-            {
                 var pedidos = await _service.GetAllAsync();
-                return Ok(pedidos);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al obtener los pedidos: {ex.Message}");
-            }
+                var response = pedidos.Select(p => new PedidoResponseDto
+                {
+                    Id = p.Id,
+                    NombreCliente = p.NombreCliente,
+                    EmailCliente = p.EmailCliente,
+                    Direccion = p.Direccion,
+                    TelefonoCliente = p.TelefonoCliente,
+                    PedidoFecha = p.PedidoFecha,
+                    FechaEntrega = p.FechaEntrega,
+                    UsuarioId = p.UsuarioId,
+                    ItemsPedido = p.ItemsPedido.Select(i => new PedidoItemResponseDto
+                    {
+                        Id = i.Id,
+                        Cantidad = i.Cantidad,
+                        Subtotal = i.Subtotal,
+                        NombreProducto = i.ProductoNombre,
+                        Talla = i.Talla,
+                        PedidoId = i.PedidoId
+                    }).ToList()
+                });
+            return Ok(response);
         }
 
         [HttpGet("my-orders")]
@@ -85,17 +98,58 @@ namespace API.Controllers
             try
             {
                 var pedido = await _service.GetByIdAsync(id);
+                var itemsPedido = await _service.GetItemsByPedidoIdAsync(id);
+                var itemsResponse = itemsPedido.Select(i => new PedidoItemResponseDto
+                {
+                    Id = i.Id,
+                    Cantidad = i.Cantidad,
+                    Subtotal = i.Subtotal,
+                    NombreProducto = i.ProductoNombre,
+                    Talla = i.Talla,
+                    PedidoId = i.PedidoId
+                }).ToList();
+
                 var response = new PedidoResponseDto
                 {
                     Id = pedido.Id,
                     NombreCliente = pedido.NombreCliente,
                     EmailCliente = pedido.EmailCliente,
-                    Direccion = pedido.Direccion,
                     TelefonoCliente = pedido.TelefonoCliente,
+                    Direccion = pedido.Direccion,
                     PedidoFecha = pedido.PedidoFecha,
                     FechaEntrega = pedido.FechaEntrega,
                     UsuarioId = pedido.UsuarioId,
+                    Subtotal = pedido.Subtotal,
+                    Total = pedido.Total,
+                    ItemsPedido = itemsResponse
+                };
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
+        [HttpGet("{pedidoId}/Item/{Id}")]
+        [Authorize(Roles = "Admin,Cliente")]
+        public async Task<ActionResult<PedidoItemResponseDto>> GetPedidoItemByIdAsync(int id, Guid pedidoId)
+        {
+            try
+            {
+                var item = await _service.GetItemByIdOnPedidoAsync(id, pedidoId);
+                var response = new PedidoItemResponseDto
+                {
+                    Id = item.Id,
+                    Cantidad = item.Cantidad,
+                    Subtotal = item.Subtotal,
+                    NombreProducto = item.ProductoNombre,
+                    Talla = item.Talla,
+                    PedidoId = item.PedidoId
                 };
                 return Ok(response);
             }
@@ -125,7 +179,12 @@ namespace API.Controllers
                     NombreCliente = dto.NombreCliente,
                     EmailCliente = dto.EmailCliente,
                     TelefonoCliente = dto.TelefonoCliente,
-                    Direccion = dto.Direccion
+                    Direccion = dto.Direccion,
+                    ItemsPedido = dto.ItemsPedido.Select(i => new PedidoItem
+                    {
+                        Cantidad = i.Cantidad,
+                        ProductoVarianteId = i.ProductoVarianteId,
+                    }).ToList()
                 };
                 var created = await _service.AddAsync(createdPedido);
 
@@ -139,6 +198,17 @@ namespace API.Controllers
                     PedidoFecha = created.PedidoFecha,
                     FechaEntrega = created.FechaEntrega,
                     UsuarioId = created.UsuarioId,
+                    Subtotal = created.Subtotal,
+                    Total = created.Total,
+                    ItemsPedido = created.ItemsPedido.Select(i => new PedidoItemResponseDto
+                    {
+                        Id = i.Id,
+                        Cantidad = i.Cantidad,
+                        Subtotal = i.Subtotal,
+                        NombreProducto = i.ProductoNombre,
+                        Talla = i.Talla,
+                        PedidoId = i.PedidoId
+                    }).ToList()
                 });
             }
             catch (ArgumentException ex)
@@ -148,6 +218,10 @@ namespace API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }

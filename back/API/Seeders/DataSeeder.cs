@@ -28,7 +28,7 @@ namespace API.Seeders
 
 
             // Productos (5 por categoria)
-            var productosData = new (string Nombre, string Descripcion, double Precio, string ImagenPath, List<string> Imagenes, List<(int Stock, string Sku, int Talla)> Variantes)[][]
+            var productosData = new (string Nombre, string Descripcion, decimal Precio, string ImagenPath, List<string> Imagenes, List<(int Stock, string Sku, int Talla)> Variantes)[][]
              {
                 [
                     ("Camiseta Oversize Negra", "Camiseta urbana oversize color negro con diseño minimalista.", 89900, "camiseta-oversize-negra.png", new() { "camiseta-oversize-negra-1.png", "camiseta-oversize-negra-2.png" }, new() { (12, "CAM-NEG-S", 0), (8, "CAM-NEG-M", 1), (4, "CAM-NEG-L", 2), (0, "CAM-NEG-XL", 3) }),

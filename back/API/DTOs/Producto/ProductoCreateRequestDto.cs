@@ -9,7 +9,7 @@ namespace API.DTOs.Producto
 
         public string Descripcion { get; set; } = string.Empty;
 
-        public double Precio { get; set; }
+        public decimal Precio { get; set; }
 
         public IFormFile ImagenPrincipal { get; set; } = null!;
         public Guid CategoriaId { get; set; }

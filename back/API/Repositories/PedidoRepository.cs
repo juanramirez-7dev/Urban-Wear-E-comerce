@@ -16,15 +16,15 @@ namespace API.Repositories
 
         public async Task<IEnumerable<Pedido>> GetAllAsync()
         {
-            return await _context.Pedidos.ToListAsync();
+            return await _context.Pedidos.Include(p => p.ItemsPedido).ToListAsync();
         }
         public async Task<IEnumerable<Pedido>> GetAllByUsuarioIdAsync(Guid id)
         {
-            return await _context.Pedidos.Where(p => p.UsuarioId == id).ToListAsync();
+            return await _context.Pedidos.Include(p => p.ItemsPedido).Where(p => p.UsuarioId == id).ToListAsync();
         }
         public async Task<Pedido?> GetByIdAsync(Guid id)
         {
-            return await _context.Pedidos.FindAsync(id);
+            return await _context.Pedidos.Include(p => p.ItemsPedido).FirstOrDefaultAsync(p => p.Id == id);
         }
         public async Task AddAsync(Pedido pedido)
         {

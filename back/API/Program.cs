@@ -57,7 +57,6 @@ builder.Services.AddScoped<IHasherService, HasherService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
-builder.Services.AddScoped<IPedidoItemService, PedidoItemService>();
 builder.Services.AddScoped<ICarritoService, CarritoService>();
 
 // Repositorios

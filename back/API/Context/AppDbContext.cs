@@ -37,7 +37,7 @@ namespace API.Context
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.Nombre).IsRequired().HasMaxLength(150);
                 entity.Property(p => p.Descripcion).IsRequired().HasMaxLength(1000);
-                entity.Property(p => p.Precio).IsRequired();
+                entity.Property(p => p.Precio).HasPrecision(18, 2).IsRequired();
                 entity.Property(p => p.ImagenPrincipal).IsRequired().HasMaxLength(500);
                 entity.HasOne(p => p.Categoria)
                     .WithMany(c => c.Productos )
@@ -66,7 +66,7 @@ namespace API.Context
                 entity.Property(p => p.Total).HasPrecision(18, 2).IsRequired();
                 entity.Property(p => p.PedidoFecha).IsRequired();
                 entity.Property(p => p.FechaEntrega).IsRequired();
-                entity.Property(p => p.Total).IsRequired();
+                entity.Property(p => p.Total).HasPrecision(18, 2).IsRequired();
                 entity.HasOne(p => p.Usuario)
                     .WithMany(u => u.Pedidos)
                     .HasForeignKey(p => p.UsuarioId)
@@ -102,6 +102,7 @@ namespace API.Context
                 entity.Property(pi => pi.PrecioUnitario).HasPrecision(18, 2).IsRequired();
                 entity.Property(pi => pi.Talla).IsRequired();
                 entity.Property(pi => pi.Subtotal).HasPrecision(18, 2).IsRequired();
+                entity.Property(pi => pi.ProductoVarianteId).IsRequired();
                 entity.HasOne(pi => pi.Pedido)
                     .WithMany(p => p.ItemsPedido)
                     .HasForeignKey(pi => pi.PedidoId)

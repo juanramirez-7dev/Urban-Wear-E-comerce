@@ -8,5 +8,7 @@ namespace API.Interfaces.Services
         Task<IEnumerable<Pedido>> GetAllByUsuarioIdAsync(Guid userId);
         Task<Pedido> GetByIdAsync(Guid id);
         Task<Pedido> AddAsync(Pedido pedido);
+        Task<IEnumerable<PedidoItem>> GetItemsByPedidoIdAsync(Guid pedidoId);
+        Task<PedidoItem> GetItemByIdOnPedidoAsync(int id, Guid idPedido);
     }
 }
