@@ -12,5 +12,6 @@ namespace API.Models
         public RolUsuario Rol { get; set; } = RolUsuario.Cliente;
         public ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
         public Carrito Carrito { get; set; } = null!;
+        public CodigoRecuperacion? CodigoRecuperacion { get; set; }
     }
 }

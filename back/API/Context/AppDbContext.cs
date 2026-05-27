@@ -14,6 +14,7 @@ namespace API.Context
         public DbSet<PedidoItem> ItemsPedido { get; set; }
         public DbSet<Carrito> Carritos { get; set; }
         public DbSet<CarritoItem> CarritoItems { get; set; }
+        public DbSet<CodigoRecuperacion> CodigosRecuperacion { get; set; }
 
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -40,7 +41,7 @@ namespace API.Context
                 entity.Property(p => p.Precio).HasPrecision(18, 2).IsRequired();
                 entity.Property(p => p.ImagenPrincipal).IsRequired().HasMaxLength(500);
                 entity.HasOne(p => p.Categoria)
-                    .WithMany(c => c.Productos )
+                    .WithMany(c => c.Productos)
                     .HasForeignKey(p => p.CategoriaId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
@@ -58,7 +59,7 @@ namespace API.Context
             modelBuilder.Entity<Pedido>(entity =>
             {
                 entity.HasKey(p => p.Id);
-                entity.Property(p=> p.NombreCliente).IsRequired().HasMaxLength(100);
+                entity.Property(p => p.NombreCliente).IsRequired().HasMaxLength(100);
                 entity.Property(p => p.EmailCliente).IsRequired().HasMaxLength(100);
                 entity.Property(p => p.TelefonoCliente).IsRequired().HasMaxLength(10);
                 entity.Property(p => p.Direccion).IsRequired().HasMaxLength(100);
@@ -131,6 +132,18 @@ namespace API.Context
                 entity.HasOne(ci => ci.ProductoVariante)
                     .WithMany(pv => pv.CarritoItems)
                     .HasForeignKey(ci => ci.ProductoVarianteId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CodigoRecuperacion>(entity =>
+            {
+                entity.HasKey(cr => cr.Id);
+                entity.Property(cr => cr.Codigo).IsRequired();
+                entity.Property(cr => cr.ExpirationDate).IsRequired();
+                entity.Property(cr => cr.UserId).IsRequired();
+                entity.HasOne(cr => cr.Usuario)
+                    .WithOne(u => u.CodigoRecuperacion)
+                    .HasForeignKey<CodigoRecuperacion>(cr => cr.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
