@@ -1,4 +1,5 @@
 ﻿using API.Context;
+using API.Enums;
 using API.Interfaces.Repositories;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,16 @@ namespace API.Repositories
         {
             _context.ProductoVariantes.Update(enity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<ICollection<ProductoVariante>> GetAllByProductIdAsyn(Guid productId)
+        {
+            return await _context.ProductoVariantes.Where(pv => pv.ProductoId == productId).ToListAsync();
+        }
+
+        public async Task<bool> ExistVarianteWithTalla(int varianteId, Talla talla)
+        {
+            return await _context.ProductoVariantes.AnyAsync(pv => pv.Id == varianteId && pv.Talla == talla);
         }
     }
 }

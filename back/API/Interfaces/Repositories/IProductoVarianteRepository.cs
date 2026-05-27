@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.Enums;
+using API.Models;
 
 namespace API.Interfaces.Repositories
 {
@@ -7,5 +8,7 @@ namespace API.Interfaces.Repositories
         Task<ProductoVariante?> GetByIdAsync(int id);
         Task AddAsync(ProductoVariante enity);
         Task UpdateAsync(ProductoVariante enity);
+        Task<ICollection<ProductoVariante>> GetAllByProductIdAsyn(Guid productId);
+        Task<bool> ExistVarianteWithTalla(int varianteId, Talla talla);
     }
 }

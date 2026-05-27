@@ -52,8 +52,9 @@ namespace API.Controllers
                 var nombre = User.FindFirst(ClaimTypes.Name)?.Value;
                 var email = User.FindFirst(ClaimTypes.Email)?.Value;
                 var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                var telefono = User.FindFirst(ClaimTypes.MobilePhone)?.Value;
 
-                var userAuth = _service.meMethod(id, nombre, email, role);
+                var userAuth = _service.meMethod(id, nombre, email, role, telefono);
 
                 return Ok(userAuth);
             }

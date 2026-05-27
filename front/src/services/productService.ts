@@ -1,4 +1,5 @@
 import type { ProductPagedResponse, Params, ProductDetails } from "../types/productTypes"
+import type { ErrorResponseType } from "../types/genericTypes"
 import { BASE_API_URL } from "../config/api"
 
 export const getProducts = async ({ limit, offset, categoriaId , min, max } : Params) : Promise<ProductPagedResponse> => {
@@ -20,6 +21,29 @@ export const getProductDetails = async (id: string) : Promise<ProductDetails> =>
 
 }
 
+export const deleteProduct = async (id: string, token?: string | null) : Promise<void> => {
+  const resolvedToken = token ?? getStoredToken()
+  const response = await fetch(`${BASE_API_URL}/Productos/${id}`, {
+    method: "DELETE",
+    headers: resolvedToken ? { Authorization: `Bearer ${resolvedToken}` } : undefined
+  })
+
+  if (!response.ok) {
+    let errorMessage = "No pudimos eliminar el producto."
+
+    try {
+      const errorData = (await response.json()) as ErrorResponseType
+      if (errorData?.message) {
+        errorMessage = errorData.message
+      }
+    } catch {
+      // Keep default error message on invalid response bodies.
+    }
+
+    throw new Error(errorMessage)
+  }
+}
+
 const buildUrl = (baseUrl: string, params:Params) => {
   const query = new URLSearchParams();
 
@@ -32,4 +56,16 @@ const buildUrl = (baseUrl: string, params:Params) => {
   const queryString = query.toString();
 
   return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+}
+
+const getStoredToken = () => {
+  const rawToken = localStorage.getItem("token")
+  if (!rawToken) return null
+
+  try {
+    const parsed = JSON.parse(rawToken) as { token?: string }
+    return parsed.token ?? null
+  } catch {
+    return null
+  }
 }

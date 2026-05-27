@@ -4,6 +4,7 @@ using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -117,13 +118,14 @@ namespace API.Controllers
             }
         }
 
-        [HttpPatch("{id:guid}/password")]
+        [HttpPatch("password")]
         [Authorize(Roles = "Cliente")]
         public async Task<ActionResult> UpdatePassword(UpdatePasswordDto request)
         {
             try
             {
-                await _usuarioService.UpdatePasswordAsync(request.id, request.CurrentPassword, request.NewPassword);
+                Guid userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                await _usuarioService.UpdatePasswordAsync(userId, request.CurrentPassword, request.NewPassword);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

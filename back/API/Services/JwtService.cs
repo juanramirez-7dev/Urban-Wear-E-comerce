@@ -15,14 +15,15 @@ namespace API.Services
         {
             _config = config;
         }
-        public string GenerateToken(string userId, string role,string name,string email)
+        public string GenerateToken(string userId, string role,string name,string email, string telefono)
         {
             var claims = new[]
             {
           new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
           new Claim(ClaimTypes.Role, role),
           new Claim(ClaimTypes.Name, name),
-          new Claim(ClaimTypes.Email, email)
+          new Claim(ClaimTypes.Email, email),
+          new Claim(ClaimTypes.MobilePhone, telefono)
       };
 
             var key = new SymmetricSecurityKey(

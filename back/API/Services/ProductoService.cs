@@ -146,7 +146,21 @@ namespace API.Services
                 throw new KeyNotFoundException($"No se encontró el producto con el ID {id}");
             }
 
+            var variantes = await _varianteRepository.GetAllByProductIdAsyn(id);
+            foreach (var v in variantes)
+            {
+                if (v.Stock> 0)
+                {
+                    throw new InvalidOperationException($"No se puede eliminar el producto con stock disponible.");
+                }
+            }
+
             await _repository.DeleteAsync(id);
+        }
+
+        public async Task<ICollection<ProductoVariante>> GetVariantesAsync(Guid id)
+        {
+            return await _varianteRepository.GetAllByProductIdAsyn(id);
         }
     }
 }

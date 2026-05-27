@@ -34,7 +34,7 @@ namespace API.Services
             {
                 throw new UnauthorizedAccessException($"La contraseña o el correo son incorrectos");
             }
-            var token = _jwtService.GenerateToken(usuario.Id.ToString(), usuario.Rol.ToString(), usuario.Nombre, usuario.Email);
+            var token = _jwtService.GenerateToken(usuario.Id.ToString(), usuario.Rol.ToString(), usuario.Nombre, usuario.Email, usuario.Telefono);
 
             var response = new LoginResponseDto
             {
@@ -44,7 +44,7 @@ namespace API.Services
             return response;
         }
 
-        public AuthUserDto meMethod(string? id,string? nombre,string? email, string? role)
+        public AuthUserDto meMethod(string? id,string? nombre,string? email, string? role, string? telefono)
         {
 
             if (!Guid.TryParse(id, out var userId))
@@ -61,7 +61,8 @@ namespace API.Services
                 Id = userId,
                 Name = nombre,
                 Email = email,
-                Role = role.ToString()
+                Role = role.ToString(),
+                Telefono = telefono
             };
             return userAuth;
         }

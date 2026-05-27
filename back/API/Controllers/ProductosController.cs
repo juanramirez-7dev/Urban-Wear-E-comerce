@@ -41,6 +41,7 @@ namespace API.Controllers
                 Nombre = p.Nombre,
                 Precio = p.Precio,
                 ImagenPrincipal = p.ImagenPrincipal,
+                CategoriaNombre = p.Categoria.Nombre                                                                
             });
 
             var response = new ProductoPagedResponseDto
@@ -90,7 +91,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductoResponseDto>> Create([FromForm] ProductoCreateRequestDto request)
         {
             try
@@ -180,6 +181,10 @@ namespace API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
             }
         }
     }

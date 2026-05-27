@@ -2,7 +2,8 @@ interface Product {
   id: string,
   nombre: string,
   precio: number,
-  imagenPrincipal: string
+  imagenPrincipal: string,
+  categoriaNombre: string,
 }
 
 interface PrductImage {
@@ -12,6 +13,11 @@ interface PrductImage {
 
 interface ProductoVariante {
   id: string,
+  stock: number,
+  talla : string,
+}
+
+interface ProductoVarianteRequest { 
   stock: number,
   talla : string,
 }
@@ -37,9 +43,23 @@ interface Params {
   max?: number;
 };
 
+interface ProductRequest {
+  nombre: string,
+  descripcion: string,
+  precio: number,
+  imaenPrincipal: File,
+  categoriaId: string
+  imagenes: File[],
+  variantes: string
+}
+
+
 export type {
   Product,
+  ProductoVariante,
   ProductDetails,
   ProductPagedResponse,
-  Params
+  Params,
+  ProductRequest,
+  ProductoVarianteRequest
 }

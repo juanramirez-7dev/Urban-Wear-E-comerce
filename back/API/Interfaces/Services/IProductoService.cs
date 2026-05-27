@@ -12,5 +12,6 @@ namespace API.Interfaces.Services
                 ICollection<ProductoVariante> Variantes);
         Task UpdateAsync(Producto producto);
         Task DeleteAsync(Guid id);
+        Task<ICollection<ProductoVariante>> GetVariantesAsync(Guid id);
     }
 }
