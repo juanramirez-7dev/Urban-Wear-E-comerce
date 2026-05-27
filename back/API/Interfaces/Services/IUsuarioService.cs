@@ -11,5 +11,6 @@ namespace API.Interfaces.Services
         Task DeleteAsync(Guid id);
         Task<Usuario> GetByEmailAsync(string email);
         Task UpdatePasswordAsync(Guid id, string actualPassword, string newPassword);
+        Task<CodigoRecuperacion> GenerarCodigoDeRecuperacion(Guid idUser);
     }
 }

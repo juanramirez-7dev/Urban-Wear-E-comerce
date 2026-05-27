@@ -58,6 +58,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 builder.Services.AddScoped<ICarritoService, CarritoService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Repositorios
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
@@ -69,6 +70,7 @@ builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
 builder.Services.AddScoped<IPedidoItemRepository, PedidoItemRepository>();
 builder.Services.AddScoped<ICarritoRepository, CarritoRepository>();
 builder.Services.AddScoped<ICarritoItemRepository, CarritoItemRepository>();
+builder.Services.AddScoped<ICodigoRecuperacionRepository, CodigoRecuperacionRepository>();
 
 // Controllers
 builder.Services.AddControllers()

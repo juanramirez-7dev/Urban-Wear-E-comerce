@@ -56,19 +56,25 @@ namespace API.Services
             if (string.IsNullOrWhiteSpace(pedido.EmailCliente))
                 throw new ArgumentException("El email es requerido");
 
+            var partes = pedido.EmailCliente.Split('@');
+            if (partes.Length != 2 || partes[0].Length == 0 || partes[1].Length == 0 || !partes[1].Contains('.'))
+            {
+                throw new ArgumentException($"El email no es valido");
+            }
+
             if (string.IsNullOrWhiteSpace(pedido.TelefonoCliente))
                 throw new ArgumentException("El telefono es requerido");
 
             if (pedido.ItemsPedido == null || !pedido.ItemsPedido.Any())
                 throw new ArgumentException("El pedido debe tener al menos un item");
 
-            pedido.Id = Guid.NewGuid();
 
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
 
+                pedido.Id = Guid.NewGuid();
                 pedido.PedidoFecha = DateTime.UtcNow;
                 pedido.FechaEntrega = pedido.PedidoFecha.AddDays(7);
 

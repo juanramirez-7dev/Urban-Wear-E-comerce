@@ -12,9 +12,11 @@ namespace API.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-        public UsuarioController(IUsuarioService usuarioService)
+        private readonly IEmailService _emailService;
+        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService)
         {
             _usuarioService = usuarioService;
+            _emailService = emailService;
         }
 
         [HttpGet("{id:guid}")]
@@ -124,6 +126,30 @@ namespace API.Controllers
             try
             {
                 await _usuarioService.UpdatePasswordAsync(request.id, request.CurrentPassword, request.NewPassword);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("recuperar-password")]
+        public async Task<ActionResult> RequestPasswordRecovery(string email)
+        {
+            try
+            {
+                var usuario = await _usuarioService.GetByEmailAsync(email);
+                var codigo = await _usuarioService.GenerarCodigoDeRecuperacion(usuario.Id);
+                await _emailService.SendEmailAsync(usuario.Email, "Recuperación de contraseña", $"Tu código de recuperación es: {codigo.Codigo}");
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

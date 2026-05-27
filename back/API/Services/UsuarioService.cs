@@ -8,10 +8,12 @@ namespace API.Services
     {
         private readonly IUsuarioRepository _repository;
         private readonly IHasherService _hasherService;
-        public UsuarioService(IUsuarioRepository repository, IHasherService hasherService)
+        private readonly ICodigoRecuperacionRepository _codigoRecuperacionRepository;
+        public UsuarioService(IUsuarioRepository repository, IHasherService hasherService, ICodigoRecuperacionRepository codigoRecuperacionRepository)
         {
             _repository = repository;
             _hasherService = hasherService;
+            _codigoRecuperacionRepository = codigoRecuperacionRepository;
         }
         public async Task<IEnumerable<Usuario>> GetAllAsync()
         {
@@ -101,6 +103,11 @@ namespace API.Services
         }
         public async Task<Usuario> GetByEmailAsync(string email)
         {
+            var partes = email.Split('@');
+            if (partes.Length != 2 || partes[0].Length == 0 || partes[1].Length == 0 || !partes[1].Contains('.'))
+            {
+                throw new ArgumentException($"El email no es valido");
+            }
             var usuario = await _repository.GetByEmailAsync(email);
             if (usuario == null)
             {
@@ -126,6 +133,25 @@ namespace API.Services
             }
             existingUsuario.PasswordHash = _hasherService.HashPassword(newPassword);
             await _repository.UpdateAsync(existingUsuario);
+        }
+
+        public async Task<CodigoRecuperacion> GenerarCodigoDeRecuperacion(Guid idUser)
+        {
+            string codigo = new Random().Next(100000, 1000000).ToString();
+            var existCode = await _codigoRecuperacionRepository.GetCodeByUsuarioIdAsync(idUser);
+            if (existCode != null)
+            {
+                existCode.Codigo = codigo;
+                await _codigoRecuperacionRepository.UpdateAsync(existCode);
+                return existCode;
+            }
+            var codigoRecuperacion = new CodigoRecuperacion
+            {
+                Codigo = codigo,
+                UserId = idUser
+            };
+            await _codigoRecuperacionRepository.AddAsync(codigoRecuperacion);
+            return codigoRecuperacion;
         }
 
     }
