@@ -6,6 +6,7 @@ export const getProducts = async ({ limit, offset, categoriaId , min, max } : Pa
   const url = buildUrl(`${BASE_API_URL}/Productos`, { limit, offset, categoriaId, min, max });
 
   const response = await fetch(url);
+  console.log("URL de la solicitud:", url); // Agrega este log para verificar la URL
   const data : ProductPagedResponse = await response.json();
 
   return data;
@@ -43,6 +44,28 @@ export const deleteProduct = async (id: string, token?: string | null) : Promise
     throw new Error(errorMessage)
   }
 }
+
+export const createProduct = async (productData: FormData) : Promise<void> => {
+    const token = getStoredToken()
+    if (!token) {
+      throw new Error("No autenticado. Por favor inicia sesión para crear un producto.")
+    }
+
+    const response = await fetch(`${BASE_API_URL}/Productos`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
+      body: productData
+    })
+
+    if (!response.ok) {
+      const errorData : ErrorResponseType = await response.json()
+      throw new Error(errorData.message || "No se pudo crear el producto.")
+    }
+
+}
+
 
 const buildUrl = (baseUrl: string, params:Params) => {
   const query = new URLSearchParams();

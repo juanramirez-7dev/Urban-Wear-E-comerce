@@ -1,46 +1,41 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { deleteProduct, getProducts } from "../../services/productService"
-import { useShopPagination } from "../../hooks/useShopPagination"
 import type { ProductPagedResponse } from "../../types/productTypes"
 import { ProductInventory } from "../../components/admin/ProductInventory"
 import { ShopPagination } from "../../components/shop/ShopPagination"
 import { useAuth } from "../../hooks/useAuth"
+import { Link } from "react-router"
 
 const ITEMS_PER_PAGE = 8
 
 export default function AdminInventory() {
 	const { token } = useAuth()
-	const [totalItems, setTotalItems] = useState(0)
+	const [page, setPage] = useState(1)
 	const queryClient = useQueryClient()
-	const pagination = useShopPagination({
-		itemsPerPage: ITEMS_PER_PAGE,
-		totalItems
-	})
+	const limit = ITEMS_PER_PAGE
+	const offset = (page - 1) * limit
 
 	const {
 		data: productsData,
 		isLoading,
 		isError
 	} = useQuery<ProductPagedResponse>({
-		queryKey: [
-			"admin-products",
-			pagination.page,
-			pagination.limit,
-			pagination.offset
-		],
+		queryKey: ["admin-products", page, limit, offset],
 		queryFn: () =>
 			getProducts({
-				limit: pagination.limit,
-				offset: pagination.offset
+				limit,
+				offset
 			})
 	})
 
-	useEffect(() => {
-		if (productsData?.total != null && productsData.total !== totalItems) {
-			setTotalItems(productsData.total)
-		}
-	}, [productsData?.total, totalItems])
+	const totalItems = productsData?.total ?? 0
+	const totalPages = Math.max(1, Math.ceil(totalItems / limit))
+	const canPrev = page > 1
+	const canNext = page < totalPages
+	const goPrev = () => setPage((currentPage) => Math.max(1, currentPage - 1))
+	const goNext = () =>
+		setPage((currentPage) => Math.min(totalPages, currentPage + 1))
 
 	const deleteProductMutation = useMutation<void, Error, string>({
 		mutationFn: (productId) => deleteProduct(productId, token),
@@ -66,9 +61,12 @@ export default function AdminInventory() {
 						Gestion de productos y catalogo.
 					</p>
 				</div>
-				<button className="bg-primary text-on-primary px-6 py-3 font-label-md text-label-md uppercase tracking-widest hover:opacity-90 transition-opacity">
+				<Link
+					to="/admin/inventory/create"
+					className="bg-primary px-6 py-3 font-label-md text-label-md uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90"
+				>
 					Agregar producto
-				</button>
+				</Link>
 			</div>
 
 			<ProductInventory
@@ -86,12 +84,12 @@ export default function AdminInventory() {
 			) : null}
 
 			<ShopPagination
-				page={pagination.page}
-				totalPages={pagination.totalPages}
-				canPrev={pagination.canPrev}
-				canNext={pagination.canNext}
-				onPrev={pagination.goPrev}
-				onNext={pagination.goNext}
+				page={page}
+				totalPages={totalPages}
+				canPrev={canPrev}
+				canNext={canNext}
+				onPrev={goPrev}
+				onNext={goNext}
 			/>
 		</section>
 	)

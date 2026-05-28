@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { CheckoutData } from "../components/checkout/CheckoutData";
 import { OrderReview } from "../components/checkout/OrderReview";
 import { useCart } from "../hooks/useCart";
 import { useAuth } from "../hooks/useAuth";
 import { orderService } from "../services/orderService";
-import type { PedidoRequest } from "../types/orderTypes";
+import type { PedidoRequest, PedidoResponse } from "../types/orderTypes";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 export default function CheckoutPage() {
-  const { carrito } = useCart();
+  const { carrito, clearCart } = useCart();
   const { user, token } = useAuth();
   const items = carrito?.items ?? [];
 
@@ -18,9 +20,19 @@ export default function CheckoutPage() {
     email: user?.email ?? "",
     direccion: ""
   }));
+
+  const navigate = useNavigate();
+
+  const createPedidoMutation = useMutation<PedidoResponse, Error, PedidoRequest>({
+    mutationFn: (pedido) => orderService.createPedido(pedido, token),
+    onSuccess: (data) => {
+      clearCart();
+      navigate(`/bill/${data.id}`);
+    }
+  })
+
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successId, setSuccessId] = useState<string | null>(null);
 
 
   const handleChange = (
@@ -34,8 +46,6 @@ export default function CheckoutPage() {
   };
 
   const handleSubmit = async () => {
-    setErrorMessage(null);
-    setSuccessId(null);
 
     if (items.length === 0) {
       setErrorMessage("Tu carrito esta vacio.");
@@ -58,16 +68,7 @@ export default function CheckoutPage() {
       }))
     };
 
-    setIsSubmitting(true);
-    try {
-      const response = await orderService.createPedido(pedido, token);
-      setSuccessId(response.id);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Error al crear el pedido";
-      setErrorMessage(message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    createPedidoMutation.mutate(pedido);
   };
 
   if (items.length === 0) {
@@ -101,11 +102,6 @@ export default function CheckoutPage() {
           <h1 className="font-display-md text-display-md text-primary">
             Checkout de compra
           </h1>
-          {successId ? (
-            <p className="text-sm text-primary">
-              Pedido creado: {successId}
-            </p>
-          ) : null}
         </header>
 
         <div className="flex flex-col lg:flex-row gap-10">
@@ -114,7 +110,7 @@ export default function CheckoutPage() {
               values={values}
               onChange={handleChange}
               onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
+              isSubmitting={createPedidoMutation.isPending}
               errorMessage={errorMessage}
             />
           </section>

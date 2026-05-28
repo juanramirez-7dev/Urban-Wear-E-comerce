@@ -7,6 +7,7 @@ export interface UseGuestCartReturnType {
   handleAddCartItem: (cartItem: CartItem) => void;
   handleRemoveCartItem: (itemId: string) => void;
   handleUpdateCartItem: (itemId: string, cantidad: number) => void;
+  handleClearCart: () => void;
 }
 
 export const useGuestCart = (): UseGuestCartReturnType => {
@@ -27,8 +28,14 @@ export const useGuestCart = (): UseGuestCartReturnType => {
     setGuestCart(updatedCart)
   }
 
+  const handleClearCart = () => {
+    const clearedCart = guestCartService.clearCart()
+    setGuestCart(clearedCart)
+  }
+
   return {
     guestCart,
+    handleClearCart,
     handleAddCartItem,
     handleRemoveCartItem,
     handleUpdateCartItem

@@ -89,13 +89,17 @@ export default function ProductDetail() {
       (item) => item.productoVarianteId === selectedVariant.id
     );
 
-    if (existingItem) {
-      if (isGuest && existingItem.cantidad >= selectedVariant.stock) {
-        setSelectionError("No hay mas stock disponible para esta talla.");
-        return;
-      }
+    const currentQuantity = existingItem?.cantidad ?? 0;
+    const nextQuantity = currentQuantity + 1;
+    const maxStock = selectedVariant.stock;
 
-      await updateItem(existingItem.id, existingItem.cantidad + 1);
+    if (typeof maxStock === "number" && nextQuantity > maxStock) {
+      setSelectionError("No hay mas stock disponible para esta talla.");
+      return;
+    }
+
+    if (existingItem) {
+      await updateItem(existingItem.id, nextQuantity);
       return;
     }
 

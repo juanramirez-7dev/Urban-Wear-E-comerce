@@ -8,6 +8,7 @@ export function CartItem({
   talla,
   cantidad,
   precio,
+  stock,
   productoVarianteId
 }: CartItemType) {
   const { removeItem, updateItem } = useCart();
@@ -28,8 +29,14 @@ export function CartItem({
   };
 
   const handleIncrease = async () => {
+    if (typeof stock === "number" && cantidad >= stock) {
+      return;
+    }
+
     await updateItem(id, cantidad + 1);
   };
+
+  const canIncrease = typeof stock === "number" ? cantidad < stock : true;
 
   return (
     <article className="flex flex-col md:flex-row gap-6 border-b border-outline-variant pb-6">
@@ -77,7 +84,8 @@ export function CartItem({
             <button
               type="button"
               onClick={handleIncrease}
-              className="px-3 py-2 text-secondary hover:text-primary transition-colors"
+              disabled={!canIncrease}
+              className="px-3 py-2 text-secondary hover:text-primary transition-colors disabled:cursor-not-allowed disabled:text-secondary/40"
               aria-label="Aumentar cantidad"
             >
               +

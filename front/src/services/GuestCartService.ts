@@ -72,5 +72,12 @@ export const guestCartService = {
       return cart
     }
     return cart
+  },
+
+  clearCart (): Cart {
+    const emptyCart = { id: "", items: [] }
+    localStorage.setItem("guest_cart", JSON.stringify(emptyCart))
+    return emptyCart
   }
+
 }

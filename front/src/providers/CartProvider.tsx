@@ -15,7 +15,7 @@ export function CartProvider({ children } : CartProviderPropsType) {
   const { user, token } = useAuth()
   const queryClient = useQueryClient()
   const isAuthenticated = !!user
-  const { guestCart, handleAddCartItem, handleRemoveCartItem, handleUpdateCartItem } = useGuestCart()
+  const { guestCart, handleAddCartItem, handleRemoveCartItem, handleUpdateCartItem, handleClearCart } = useGuestCart()
 
   const { data: authCart = null } = useQuery<Cart | null>({
     queryKey: ["cart", user?.id],
@@ -71,12 +71,24 @@ export function CartProvider({ children } : CartProviderPropsType) {
     }
   }
 
+  const clearCart = async (): Promise<void> => {
+    if(isAuthenticated){
+      await authCartService.clearCart(token!)
+      queryClient.invalidateQueries({
+        queryKey: ["cart", user?.id]
+      })
+    } else {
+      handleClearCart()
+    }
+  }
+
   return (
    <CartContext.Provider value={{
       carrito,
       addItem,
       removeItem,
-      updateItem
+      updateItem,
+      clearCart
 
    }}>
       {children}
