@@ -8,5 +8,6 @@ namespace API.Interfaces.Services
         Task AddItem(Guid userId, CarritoItem item);
         Task DeleteItem(Guid userId, int itemId);
         Task UpdateItem(Guid userId, int itemId, int cantidad);
+        Task DeleteAsync(Guid userId);
     }
 }

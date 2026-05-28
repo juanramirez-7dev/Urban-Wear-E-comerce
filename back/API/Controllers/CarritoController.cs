@@ -43,7 +43,7 @@ namespace API.Controllers
                         ProductoVarianteId = i.ProductoVarianteId
                     }).ToList()
                 });
-            } 
+            }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
@@ -101,7 +101,7 @@ namespace API.Controllers
         public async Task<ActionResult> UpdateItem(int itemId, [FromBody] UpdateCuantityDto dto)
         {
             try
-            { 
+            {
                 await _service.UpdateItem(UserId, itemId, dto.Cantidad);
                 return Ok();
             }
@@ -115,5 +115,23 @@ namespace API.Controllers
             }
         }
 
+        [HttpDelete]
+        public async Task<ActionResult> ClearCart()
+        {
+            try
+            {
+                await _service.DeleteAsync(UserId);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+
+        }
     }
 }

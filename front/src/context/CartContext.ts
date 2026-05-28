@@ -9,6 +9,7 @@ type CartContextType = {
   }) => Promise<void>;
   removeItem: (itemId: string) => Promise<void>;
   updateItem: (itemId: string, cantidad: number) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 export const CartContext = createContext<CartContextType | null>(null)

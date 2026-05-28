@@ -53,6 +53,8 @@ interface ProductRequest {
   variantes: string
 }
 
+type Talla = "S" | "M" | "L" | "XL" 
+
 
 export type {
   Product,
@@ -61,5 +63,6 @@ export type {
   ProductPagedResponse,
   Params,
   ProductRequest,
-  ProductoVarianteRequest
+  ProductoVarianteRequest,
+  Talla
 }

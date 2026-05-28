@@ -2,23 +2,20 @@ import { NavLink } from "react-router"
 import {
 	IconChevronLeft,
 	IconChevronRight,
-	IconCreditCard,
 	IconLayoutDashboard,
 	IconLogout,
 	IconPackage,
-	IconSettings,
 	IconShoppingCart,
 } from "@tabler/icons-react"
 import { useAuth } from "../../hooks/useAuth"
 
-export interface NavAdminProps
-	extends Readonly<{
-		isCollapsed: boolean
+export interface NavAdminProps {
+  isCollapsed: boolean
 		onToggleCollapse: () => void
-	}> {}
+}
 
 export function NavAdmin({ isCollapsed, onToggleCollapse }: NavAdminProps) {
-	const { user } = useAuth()
+	const { user, logout } = useAuth()
 	const userName = user?.name?.trim() || "Admin"
 	const sidebarWidthClass = isCollapsed ? "w-20" : "w-20 md:w-64"
 	const headerVisibilityClass = isCollapsed ? "hidden" : "hidden md:block"
@@ -111,53 +108,22 @@ export function NavAdmin({ isCollapsed, onToggleCollapse }: NavAdminProps) {
 						Orders
 					</span>
 				</NavLink>
-				<NavLink
-					to="/admin/billing"
-					className={({ isActive }) =>
-						`${linkBaseClass} ${linkSpacingClass} ${
-							isActive
-								? "bg-primary text-on-primary font-bold"
-								: "text-on-surface-variant hover:bg-surface-container-high"
-						}`
-					}
-				>
-					<IconCreditCard className="size-5" />
-					<span className={`font-label-md text-label-md ${labelClass}`}>
-						Billing
-					</span>
-				</NavLink>
+				
 			</nav>
 			<div className="px-4 mt-auto border-t border-outline-variant pt-6 space-y-2">
-				<NavLink
-					to="/admin/settings"
-					className={({ isActive }) =>
-						`${linkBaseClass} ${linkSpacingClass} ${
-							isActive
-								? "bg-primary text-on-primary font-bold"
-								: "text-on-surface-variant hover:bg-surface-container-high"
-						}`
-					}
-				>
-					<IconSettings className="size-5" />
-					<span className={`font-label-md text-label-md ${labelClass}`}>
-						Settings
-					</span>
-				</NavLink>
-				<NavLink
-					to="/login"
-					className={({ isActive }) =>
-						`${linkBaseClass} ${linkSpacingClass} ${
-							isActive
-								? "bg-primary text-on-primary font-bold"
-								: "text-on-surface-variant hover:bg-surface-container-high"
-						}`
-					}
-				>
-					<IconLogout className="size-5" />
-					<span className={`font-label-md text-label-md ${labelClass}`}>
-						Logout
-					</span>
-				</NavLink>
+				
+
+        <button
+            type="button"
+            onClick={logout}
+            className=" flex w-full px-4 py-3 text-left font-label-md text-label-md uppercase tracking-widest text-secondary transition-colors duration-200 hover:text-primary"
+            role="menuitem"
+          >
+            <IconLogout className="size-5" />
+            <span className={` ml-2 font-label-md text-label-md ${labelClass}`}>
+              Logout
+					  </span>
+          </button>
 			</div>
 		</aside>
 	)

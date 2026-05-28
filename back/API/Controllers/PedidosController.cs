@@ -15,9 +15,32 @@ namespace API.Controllers
     public class PedidosController : ControllerBase
     {
         private readonly IPedidoService _service;
+
         public PedidosController(IPedidoService service)
         {
             _service = service;
+        }
+
+        [HttpGet("{id}/factura")]
+        public async Task<IActionResult> DescargarFactura(Guid id)
+        {
+            try
+            {
+                var pdf = await _service.GenerarFacturaPdfAsync(id);
+
+                return File(
+                    pdf,
+                    "application/pdf",
+                    $"factura-{id}.pdf"
+                );
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new
+                {
+                    message = ex.Message
+                });
+            }
         }
 
         [HttpGet]
@@ -31,6 +54,8 @@ namespace API.Controllers
                     NombreCliente = p.NombreCliente,
                     EmailCliente = p.EmailCliente,
                     Direccion = p.Direccion,
+                    Subtotal= p.Subtotal,
+                    Total=p.Total,
                     TelefonoCliente = p.TelefonoCliente,
                     PedidoFecha = p.PedidoFecha,
                     FechaEntrega = p.FechaEntrega,
@@ -92,7 +117,6 @@ namespace API.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize(Roles ="Admin")]
         public async Task<ActionResult<PedidoResponseDto>> GetById(Guid id)
         {
             try

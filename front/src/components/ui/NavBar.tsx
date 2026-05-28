@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink, Link } from "react-router";
 import { IconShoppingBag, IconUser, IconCircleChevronDown } from "@tabler/icons-react";
 import { useAuth } from "../../hooks/useAuth";
+import { useCart } from "../../hooks/useCart";
 import type { MeResponseType } from "../../types/authTypes";
 import { Logo } from "./Logo";
 
@@ -25,6 +26,11 @@ export function NavBar() {
   ]
 
   const { user, logout } = useAuth()
+  const { carrito } = useCart()
+  const cartItemsCount = carrito?.items.reduce(
+    (total, item) => total + item.cantidad,
+    0
+  ) ?? 0
 
   return (
     <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 bg-surface-container-lowest border-b border-outline-variant">
@@ -47,8 +53,17 @@ export function NavBar() {
         </div>
       </div>
       <div className="flex items-center gap-6">
-        <Link to="/cart" className="cursor-pointer active:opacity-70" aria-label="Open cart">
-          <IconShoppingBag/>
+        <Link
+          to="/cart"
+          className="relative cursor-pointer active:opacity-70"
+          aria-label={`Open cart with ${cartItemsCount} items`}
+        >
+          <IconShoppingBag />
+          {cartItemsCount > 0 ? (
+            <span className="absolute -right-2 -top-2 inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold leading-none text-on-primary">
+              {cartItemsCount}
+            </span>
+          ) : null}
         </Link>
         {
           !user ? (

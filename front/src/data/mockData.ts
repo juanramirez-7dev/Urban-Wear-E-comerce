@@ -184,3 +184,54 @@ export const premiumLoadingContent = {
   backgroundImageAlt:
     "A high-end minimalist urban fashion boutique interior with clean architectural lines, polished concrete floors, and stark white walls."
 } as const;
+
+export const adminCreateProductContent = {
+  eyebrow: "Inventory Management",
+  title: "Create New Product",
+  cancelLabel: "CANCEL",
+  publishLabel: "Publish Product",
+  productNameLabel: "Product Name",
+  productNamePlaceholder: "e.g. Oversized Cotton Trench Coat",
+  descriptionLabel: "Description",
+  descriptionPlaceholder:
+    "Tell a story about the craftsmanship, fabric, and fit...",
+  priceLabel: "Base Price (USD)",
+  pricePlaceholder: "0.00",
+  imageLabel: "Primary Image",
+  imagePlaceholderTitle: "Drag & Drop Product Image",
+  imagePlaceholderHint: "Minimum 2000x3000px JPG/PNG",
+  primaryImageUrl:
+    "https://lh3.googleusercontent.com/aida-public/AB6AXuCuTp8Pwz-T5Fo68E8xktyMxPlajck8ulDiAToixB5VxHlAbzJP7inqQqi6gSNP-zJgV2WUkuItbq9IAwHCvwfWf_8tvivifgGP25EK9-Q_0GSRqIsa8uLWu0vnWEYz5DGpsRdaioklXlcdUX16LAnrZgN9ln2ZZ9w9P0GXF4VhEiYCXyy6i9Vb8pLORubAbOF4bv9v-4s-NGqR3lwnEkIb-JqSfM6Hvb_f_rnz6QC6FMULOOjNktNocmfGzw_VRk_uevrpRNhbpyT3",
+  primaryImageAlt:
+    "A high-fashion editorial product shot of a minimalist beige trench coat displayed on a featureless, soft grey background.",
+  galleryLabel: "Gallery",
+  galleryImages: [
+    {
+      url: "https://lh3.googleusercontent.com/aida-public/AB6AXuClYs-KRIpxZq7zTpWSCFSjxvzXjHV-WskhlZD2UZAMRSqaZ7qywbIeGEHFj-KkukScyJvVcIsiH4d7NvLTDw7oIbBK0UxlrDZW5DQFjWgXdt3mpXVFWoB0i_QWFsbIn0wwm68rbGzILHRNHYkId_dz1_AyOKa3oQSH14vT5I5wx5MBXiSGfazC6gMPEwWZEOJ5_oQxZ3h_KVEjOIFyAkPtggCIcYBzbKFkH1qtKt81oAEkQaoIbhDR2PAafT7MfS7L8VpDTiLVVa54",
+      alt: "Fabric detail close-up"
+    },
+    {
+      url: "https://lh3.googleusercontent.com/aida-public/AB6AXuAi2zqhOhIWHKBmXeccdwrzTsSYMWOOrlBQNNd3MhIF5Spohg53K54zgspWx0QeGgRIWkDJ34lFYBQRye2H_Ho0OKGs12oVfH6IPqsgDCzVt7P8aiXJCCM1nWOSyzNk0EgtN6ApFrV5KTIJCyhyeCq8UypuN9CZrAN0asFrQw3lQw3UZXyc-RddeHiOQ5pKZ0A61zXqJoKMHW6WYzZKRpREkCDKIfjLl5z6dAxZcZgBrGMlx6TcF3fXeYgPswpKf0Mg5_8VwqZT6IFx",
+      alt: "Accessory detail shot"
+    }
+  ] as const,
+  categoryLabel: "Category",
+  categories: ["Buzos", "Pantalones", "Bsicas", "Grficas"] as const,
+  selectedCategory: "Pantalones",
+  variantsLabel: "Inventory & Variants",
+  sizeLabel: "Size",
+  stockLabel: "Stock Quantity",
+  variantSizes: ["S", "M", "L", "XL"] as const,
+  initialVariants: [
+    { id: "variant-l", size: "L", stock: 12 },
+    { id: "variant-m", size: "M", stock: 8 }
+  ] as const,
+  footer: {
+    copyright: "© 2024 URBAN FASHION GROUP",
+    links: [
+      { label: "Privacy Policy", href: "#" },
+      { label: "Terms of Service", href: "#" },
+      { label: "Documentation", href: "#" }
+    ] as const
+  }
+} as const;

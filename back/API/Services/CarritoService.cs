@@ -129,62 +129,95 @@ namespace API.Services
         }
         public async Task UpdateItem(Guid userId, int itemId, int cantidad)
         {
-            // verificar que el usuario eciste
+            // verificar usuario
             var usuario = await _usuarioRepository.GetByIdAsync(userId);
+
             if (usuario == null)
             {
                 throw new KeyNotFoundException($"Usuario con id {userId} no encontrado");
             }
 
-            // verificar que el item existe
+            // verificar item
             var existingItem = await _carritoItemRepository.GetByIdAsync(itemId);
+
             if (existingItem == null)
             {
                 throw new KeyNotFoundException($"Item con id {itemId} no encontrado");
             }
 
-            // traer el carrito del usuario para verificar que el item pertenece al carrito del usuario
+            // verificar carrito
             var carrito = await _carritoRepository.GetByUserId(usuario.Id);
+
             if (carrito == null)
             {
                 throw new InvalidOperationException("No se pudo recuperar el carrito del usuario");
             }
+
+            // verificar pertenencia
             if (carrito.Id != existingItem.CarritoId)
             {
                 throw new InvalidOperationException("El item no pertenece al carrito del usuario");
             }
 
-
-            // verificar que la cantidad del item no sea negativa
+            // validar cantidad
             if (cantidad < 0)
             {
-                throw new InvalidOperationException("La cantidad del item no puede ser negativa");
+                throw new InvalidOperationException("La cantidad no puede ser negativa");
             }
 
+            // si cantidad = 0 y es el único item -> eliminar carrito
             int count = await _carritoRepository.CountItemAsync(carrito.Id);
-            // si el carrito solo tieene un item y se actualiza su cantidad a 0, se elimina el carrito
-            if (count == 1 && existingItem.Cantidad == 0)
+
+            if (count == 1 && cantidad == 0)
             {
                 await _carritoRepository.DeleteAsync(carrito.Id);
                 return;
             }
 
-            // si el item se actualiza a cantidad 0, se elimina el item
+            // si cantidad = 0 -> eliminar item
             if (cantidad == 0)
             {
                 await _carritoItemRepository.DeleteAsync(existingItem.Id);
                 return;
             }
 
-            var variante = await _productoVarianteRepository.GetByIdAsync(existingItem.Id);
-            int stockDisponible = variante!.Stock;
-            if (cantidad > stockDisponible)
+            // validar stock
+            var variante = await _productoVarianteRepository
+                .GetByIdAsync(existingItem.ProductoVarianteId);
+
+            if (variante == null)
             {
-                throw new InvalidOperationException("La cantidad del item excede el stock disponible");
+                throw new KeyNotFoundException("La variante del producto no existe");
             }
 
+            if (cantidad > variante.Stock)
+            {
+                throw new InvalidOperationException(
+                    "La cantidad excede el stock disponible");
+            }
+
+            // actualizar
             existingItem.Cantidad = cantidad;
+
             await _carritoItemRepository.UpdateAsync(existingItem);
         }
+
+        public async Task DeleteAsync(Guid userId)
+        {
+            var usuario = await _usuarioRepository.GetByIdAsync(userId);
+            if (usuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con id {userId} no encontrado");
+            }
+
+            var carrito = await _carritoRepository.GetByUserId(usuario.Id);
+            if (carrito == null)
+            {
+                throw new InvalidOperationException("No se pudo recuperar el carrito del usuario");
+            }
+
+            await _carritoRepository.DeleteAsync(carrito.Id);
+        }
+
     }
 }

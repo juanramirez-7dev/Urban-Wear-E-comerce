@@ -66,5 +66,21 @@ export const authCartService = {
       const errorData: ErrorResponseType = await response.json()
       throw new Error(errorData.message || "Error al actualizar la cantidad del producto en el carrito")
     }
+  },
+
+  async clearCart(token: string) : Promise<void> {
+   
+    const ans = await fetch(`${BASE_API_URL}/Carrito` , {
+      method: "DELETE",
+      headers: {"Authorization": `Bearer ${token}`}
+    })
+
+    if (!ans.ok) {
+      const errorData: ErrorResponseType = await ans.json()
+      console.error("Error response from clearCart API:", errorData); // Log para depuración
+      throw new Error(errorData.message || "Error al limpiar el carrito")
+    }
+
   }
+
 }

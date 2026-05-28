@@ -3,6 +3,15 @@ interface PedidoItemRequest {
   cantidad: number;
 }
 
+interface PedidoItemResponse {
+  id: string;
+  nombreProducto: string;
+  talla: string;
+  cantidad: number;
+  subtotal: number;
+  pedidoId: string;
+}
+
 interface PedidoRequest {
   nombreCliente: string;
   telefonoCliente: string;
@@ -13,18 +22,21 @@ interface PedidoRequest {
 
 interface PedidoResponse {
   id: string;
-  nombreCliente?: string;
-  telefonoCliente?: string;
-  emailCliente?: string;
-  direccion?: string;
-  itemsPedido?: PedidoItemRequest[];
-  total?: number;
-  estado?: string;
-  creadoEn?: string;
+  nombreCliente: string;
+  telefonoCliente: string;
+  emailCliente: string;
+  direccion: string;
+  subtotal: number;
+  total: number;
+  pedidoFecha: string;
+  fechaEntrega: string;
+  usuarioId: string | null;
+  itemsPedido: PedidoItemResponse[];
 }
 
 export type {
   PedidoItemRequest,
+  PedidoItemResponse,
   PedidoRequest,
   PedidoResponse
 };

@@ -10,5 +10,7 @@ namespace API.Interfaces.Services
         Task<Pedido> AddAsync(Pedido pedido);
         Task<IEnumerable<PedidoItem>> GetItemsByPedidoIdAsync(Guid pedidoId);
         Task<PedidoItem> GetItemByIdOnPedidoAsync(int id, Guid idPedido);
+        Task<byte[]> GenerarFacturaPdfAsync(Guid pedidoId);
+
     }
 }
