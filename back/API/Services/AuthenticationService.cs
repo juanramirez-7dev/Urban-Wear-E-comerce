@@ -51,7 +51,7 @@ namespace API.Services
             {
                 throw new UnauthorizedAccessException($"Usuario con Id no valido");
             }
-            if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(role))
+            if (string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(role)||string.IsNullOrEmpty(telefono))
             {
                 throw new UnauthorizedAccessException($"Usuario con datos incompletos");
             }

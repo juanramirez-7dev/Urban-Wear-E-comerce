@@ -2,6 +2,7 @@
 using API.Interfaces.Services;
 using API.Models;
 using System.Security.Claims;
+using static QuestPDF.Helpers.Colors;
 
 namespace API.Services
 {
@@ -11,12 +12,14 @@ namespace API.Services
         private readonly IHasherService _hasherService;
         private readonly ICodigoRecuperacionRepository _codigoRecuperacionRepository;
         private readonly IJwtService _jwtService;
-        public UsuarioService(IUsuarioRepository repository, IHasherService hasherService, ICodigoRecuperacionRepository codigoRecuperacionRepository,IJwtService jwtService)
+        private readonly IEmailService _emailService;
+        public UsuarioService(IUsuarioRepository repository, IHasherService hasherService, ICodigoRecuperacionRepository codigoRecuperacionRepository,IJwtService jwtService, IEmailService emailService)
         {
             _repository = repository;
             _hasherService = hasherService;
             _codigoRecuperacionRepository = codigoRecuperacionRepository;
             _jwtService = jwtService;
+            _emailService = emailService;
         }
         public async Task<IEnumerable<Usuario>> GetAllAsync()
         {
@@ -138,24 +141,33 @@ namespace API.Services
             await _repository.UpdateAsync(existingUsuario);
         }
 
-        public async Task<CodigoRecuperacion> GenerarCodigoDeRecuperacion(Guid idUser)
+        public async Task GenerarCodigoDeRecuperacion(string email)
         {
             string codigo = new Random().Next(100000, 1000000).ToString();
-            var existCode = await _codigoRecuperacionRepository.GetCodeByUsuarioIdAsync(idUser);
+            var usuario = await _repository.GetByEmailAsync(email);
+            if (usuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el email {email} no existe.");
+            }
+            var existCode = await _codigoRecuperacionRepository.GetCodeByUsuarioIdAsync(usuario.Id);
             if (existCode != null)
             {
                 existCode.Codigo = codigo;
                 existCode.ExpirationDate = DateTime.UtcNow.AddMinutes(15);
                 await _codigoRecuperacionRepository.UpdateAsync(existCode);
-                return existCode;
+                await _emailService.SendEmailAsync(email, "Recuperación de contraseña", $"Tu código de recuperación es: {codigo}");
             }
-            var codigoRecuperacion = new CodigoRecuperacion
+            else
             {
-                Codigo = codigo,
-                UserId = idUser
-            };
-            await _codigoRecuperacionRepository.AddAsync(codigoRecuperacion);
-            return codigoRecuperacion;
+                var codigoRecuperacion = new CodigoRecuperacion
+                {
+                    Codigo = codigo,
+                    UserId = usuario.Id,
+                    ExpirationDate = DateTime.UtcNow.AddMinutes(15)
+                };
+                await _codigoRecuperacionRepository.AddAsync(codigoRecuperacion);
+                await _emailService.SendEmailAsync(email, "Recuperación de contraseña", $"Tu código de recuperación es: {codigo}");
+            }
         }
 
         public async Task<string> VerificarCodigoDeRecuperacion(string email, string resetCode)
@@ -174,28 +186,18 @@ namespace API.Services
             {
                 throw new InvalidOperationException("El código de recuperación ha expirado.");
             }
-            string recoveryToken = _jwtService.GenerateToken(usuario.Id.ToString(), "Recovery", expiration: TimeSpan.FromMinutes(15)
-); ;
+
+            string recoveryToken = _jwtService.GenerateToken(usuario.Id.ToString(), "Recovery", expiration: TimeSpan.FromMinutes(15));
+            await _codigoRecuperacionRepository.DeleteAsync(codigoRecuperacion.Id);
             return recoveryToken;
         }
 
-        public async Task ResetPassword(string recoveryToken, string newPassword)
+        public async Task ResetPassword(Guid id, string newPassword)
         {
-            var principal = _jwtService.ValidateToken(recoveryToken);
-            var roleClaim = principal?.FindFirstValue(ClaimTypes.Role);
-            if (roleClaim != "Recovery"|| roleClaim == null)
-            {
-                throw new InvalidOperationException("Token de inválido.");
-            }
-            var userIdClaim = Guid.Parse(principal?.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            if (userIdClaim == Guid.Empty)
-            {
-                throw new InvalidOperationException("Token de inválido.");
-            }
-            var existingUsuario = await _repository.GetByIdAsync(userIdClaim);
+            var existingUsuario = await _repository.GetByIdAsync(id);
             if (existingUsuario == null)
             {
-                throw new KeyNotFoundException($"Usuario con el ID {userIdClaim} no existe.");
+                throw new KeyNotFoundException($"Usuario con el ID {id} no existe.");
             }
             if (newPassword.Length < 8)
             {
@@ -203,8 +205,6 @@ namespace API.Services
             }
             existingUsuario.PasswordHash = _hasherService.HashPassword(newPassword);
             await _repository.UpdateAsync(existingUsuario);
-            var codigo = await _codigoRecuperacionRepository.GetCodeByUsuarioIdAsync(existingUsuario.Id);
-            await _codigoRecuperacionRepository.DeleteAsync(codigo!.Id);
         }
     }
 }

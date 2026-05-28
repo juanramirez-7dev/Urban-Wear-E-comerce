@@ -1,4 +1,5 @@
-﻿using API.DTOs.Usuario;
+﻿using API.DTOs.ForgotPassword;
+using API.DTOs.Usuario;
 using API.Interfaces.Services;
 using API.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +14,9 @@ namespace API.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly IEmailService _emailService;
-        public UsuarioController(IUsuarioService usuarioService, IEmailService emailService)
+        public UsuarioController(IUsuarioService usuarioService)
         {
             _usuarioService = usuarioService;
-            _emailService = emailService;
         }
 
         [HttpGet("{id:guid}")]
@@ -145,13 +144,11 @@ namespace API.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public async Task<ActionResult> RequestPasswordRecovery(string email)
+        public async Task<ActionResult> RequestPasswordRecovery(ForgotPasswordRequestDto request)
         {
             try
             {
-                var usuario = await _usuarioService.GetByEmailAsync(email);
-                var codigo = await _usuarioService.GenerarCodigoDeRecuperacion(usuario.Id);
-                await _emailService.SendEmailAsync(usuario.Email, "Recuperación de contraseña", $"Tu código de recuperación es: {codigo.Codigo}");
+                await _usuarioService.GenerarCodigoDeRecuperacion(request.Email);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)
@@ -169,13 +166,12 @@ namespace API.Controllers
         }
 
         [HttpPost("verify-reset-code")]
-        public async Task<ActionResult> VerifyResetCode(string email, string resetCode)
+        public async Task<ActionResult<TokenRecoveryResponseDto>> VerifyResetCode(VerifyResetCodeRequestDto request)
         {
             try
             {
-                var usuario = await _usuarioService.GetByEmailAsync(email);
-                await _usuarioService.VerificarCodigoDeRecuperacion(usuario.Id.ToString(), resetCode);
-                return NoContent();
+                var token = await _usuarioService.VerificarCodigoDeRecuperacion(request.Email, request.ResetCode);
+                return Ok(new TokenRecoveryResponseDto { RecoveryToken = token});
             }
             catch (KeyNotFoundException ex)
             {
@@ -193,13 +189,12 @@ namespace API.Controllers
 
         [HttpPatch("reset-password")]
         [Authorize(Roles = "Recovery")]
-        public async Task<ActionResult> ResetPassword(string tokenRecovery, string newPassword)
+        public async Task<ActionResult> ResetPassword(ResetPasswordRequestDto request)
         {
             try
             {
                 Guid userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var usuario = await _usuarioService.GetByIdAsync(userId);
-                await _usuarioService.ResetPassword(tokenRecovery, newPassword);
+                await _usuarioService.ResetPassword(userId,request.NewPassword);
                 return NoContent();
 
             }

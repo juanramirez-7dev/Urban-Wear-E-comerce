@@ -34,16 +34,10 @@ public class EmailService : IEmailService
 
         using var smtp = new SmtpClient();
 
-        smtp.Timeout = 10000;
-
-        smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
-
-        smtp.LocalDomain = "localhost";
-
         await smtp.ConnectAsync(
-            "74.125.140.108",
-            587,
-            MailKit.Security.SecureSocketOptions.StartTls);
+        "smtp.gmail.com",
+        587,
+        MailKit.Security.SecureSocketOptions.StartTls);
 
         await smtp.AuthenticateAsync(
             _config["EmailSettings:Email"]!,

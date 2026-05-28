@@ -62,44 +62,5 @@ namespace API.Services
             return new JwtSecurityTokenHandler()
                 .WriteToken(token);
         }
-
-        public ClaimsPrincipal? ValidateToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var key = Encoding.UTF8.GetBytes(
-                _config["Jwt:Key"]!
-            );
-
-            try
-            {
-                var principal = tokenHandler.ValidateToken(
-                    token,
-                    new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
-
-                        ValidateIssuer = true,
-                        ValidIssuer = _config["Jwt:Issuer"],
-
-                        ValidateAudience = true,
-                        ValidAudience = _config["Jwt:Audience"],
-
-                        ValidateLifetime = true,
-
-                        ClockSkew = TimeSpan.Zero
-                    },
-                    out SecurityToken validatedToken
-                );
-
-                return principal;
-            }
-            catch
-            {
-                return null;
-            }
-        }
     }
 }
