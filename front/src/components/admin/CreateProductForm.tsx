@@ -106,9 +106,9 @@ export default function CreateProductForm() {
 										</label>
 										<select
 											className="w-full cursor-pointer border-b border-outline-variant bg-transparent py-2 font-body-md focus:border-black focus:outline-none"
-											value={variant.size}
+											value={variant.talla}
 											onChange={(event) =>
-												updateVariant(variant.id, { size: event.target.value })
+												updateVariant(variant.id, { talla: event.target.value })
 											}
 										>
 											{sizeOptions.map((sizeOption) => (
@@ -211,20 +211,20 @@ export default function CreateProductForm() {
 						</label>
 						<div className="flex flex-wrap gap-2">
 							{categories.map((category) => {
-								const isSelected = category === selectedCategory
+								const isSelected = category.id === selectedCategory
 
 								return (
 									<button
-										key={category}
+										key={category.id}
 										type="button"
-										onClick={() => setSelectedCategory(category)}
+										onClick={() => setSelectedCategory(category.id)}
 										className={`px-4 py-2 font-label-md text-label-md uppercase tracking-wider transition-all duration-200 ${
 											isSelected
 												? "border border-primary bg-primary text-on-primary shadow-sm"
 												: "border border-outline-variant hover:border-primary hover:bg-surface-container-low"
 										}`}
 									>
-										{category}
+										{category.nombre}
 									</button>
 								)
 							})}

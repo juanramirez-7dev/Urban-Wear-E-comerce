@@ -13,7 +13,7 @@ export function AuthCard() {
   const isLogin = mode === "login";
 
   return (
-    <section className="w-full max-w-[440px] border border-outline-variant bg-surface-container-lowest p-10 shadow-[0_4px_20px_rgba(0,0,0,0.04)] md:p-12">
+    <section className="w-full max-w-110 border border-outline-variant bg-surface-container-lowest p-10 shadow-[0_4px_20px_rgba(0,0,0,0.04)] md:p-12">
       <AuthTabs
         items={[
           { id: "login", label: "Login" },
@@ -30,7 +30,7 @@ export function AuthCard() {
           {errorMessage}
         </div>
       ) : null}
-      <div className="relative min-h-[520px]">
+      <div className="relative min-h-130">
         <div
           className={`absolute inset-0 transition-all duration-300 ${
             isLogin
@@ -61,7 +61,7 @@ export function AuthCard() {
             onSubmit={handleLoginSubmit}
             showForgotPassword
             forgotPasswordLabel="Forgot Password?"
-            forgotPasswordHref="/fotgot-password"
+            forgotPasswordHref="/forgot-password"
           />
         </div>
         <div

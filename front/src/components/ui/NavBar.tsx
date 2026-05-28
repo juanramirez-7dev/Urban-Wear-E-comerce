@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { NavLink, Link } from "react-router";
-import { IconShoppingBag, IconUser, IconCircleChevronDown } from "@tabler/icons-react";
+import { IconShoppingBag, IconUser } from "@tabler/icons-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import type { MeResponseType } from "../../types/authTypes";
@@ -25,7 +24,7 @@ export function NavBar() {
     { label: "Tienda", href: "/shop" },
   ]
 
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const { carrito } = useCart()
   const cartItemsCount = carrito?.items.reduce(
     (total, item) => total + item.cantidad,
@@ -71,60 +70,12 @@ export function NavBar() {
               <IconUser/>
             </Link>
           ) : (
-            <UserModal user={user} logout={logout}/>
+            <Link to={user.role === "Admin" ? "/adim": "/cliente"} className="font-label-md text-label-md uppercase tracking-widest text-secondary dark:text-secondary-fixed-dim">
+              { user.name }
+            </Link>
           )
         }
       </div>
     </nav>
   );
-}
-
-function UserModal({ user, logout }: UserModalProps) {
-
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-
-  const handleToggleUserMenu = () => {
-    setIsUserMenuOpen((prev) => !prev)
-  }
-
-  const handleLogout = () => {
-    logout()
-    setIsUserMenuOpen(false)
-  }
-
-  return (
-    <div className="relative flex items-center">
-      <button
-        type="button"
-        onClick={handleToggleUserMenu}
-        className="flex items-center gap-1 cursor-pointer active:opacity-70"
-        aria-haspopup="menu"
-        aria-expanded={isUserMenuOpen}
-      >
-        <span className="font-label-md text-label-md uppercase tracking-widest text-secondary dark:text-secondary-fixed-dim">
-          { user.name }
-        </span>
-        <IconCircleChevronDown
-          className={`text-secondary dark:text-secondary-fixed-dim transition-transform duration-200 ${
-            isUserMenuOpen ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      {isUserMenuOpen ? (
-        <div
-          className="absolute right-0 top-full mt-3 w-40 rounded-lg border border-outline-variant bg-surface-container-lowest shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
-          role="menu"
-        >
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="w-full px-4 py-3 text-left font-label-md text-label-md uppercase tracking-widest text-secondary transition-colors duration-200 hover:text-primary"
-            role="menuitem"
-          >
-            Logout
-          </button>
-        </div>
-      ) : null}
-    </div>
-  )
 }

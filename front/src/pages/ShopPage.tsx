@@ -165,7 +165,7 @@ export default function ShopPage() {
           onMaxChange={filters.handleMaxChange}
           onApply={handleApply}
         />
-        <section className="flex-grow">
+        <section className="grow">
           <ShopProductGrid
             title="Collections"
             products={products}
