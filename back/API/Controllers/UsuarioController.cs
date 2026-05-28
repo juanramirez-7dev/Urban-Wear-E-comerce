@@ -52,7 +52,7 @@ namespace API.Controllers
                     Nombre = request.Nombre,
                     Telefono = request.Telefono,
                     Email = request.Email,
-                    PasswordHash = request.Password 
+                    PasswordHash = request.Password
 
                 };
                 var createdUsuario = await _usuarioService.AddAsync(usuario);
@@ -144,7 +144,7 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost("recuperar-password")]
+        [HttpPost("forgot-password")]
         public async Task<ActionResult> RequestPasswordRecovery(string email)
         {
             try
@@ -153,6 +153,55 @@ namespace API.Controllers
                 var codigo = await _usuarioService.GenerarCodigoDeRecuperacion(usuario.Id);
                 await _emailService.SendEmailAsync(usuario.Email, "Recuperación de contraseña", $"Tu código de recuperación es: {codigo.Codigo}");
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-reset-code")]
+        public async Task<ActionResult> VerifyResetCode(string email, string resetCode)
+        {
+            try
+            {
+                var usuario = await _usuarioService.GetByEmailAsync(email);
+                await _usuarioService.VerificarCodigoDeRecuperacion(usuario.Id.ToString(), resetCode);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPatch("reset-password")]
+        [Authorize(Roles = "Recovery")]
+        public async Task<ActionResult> ResetPassword(string tokenRecovery, string newPassword)
+        {
+            try
+            {
+                Guid userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var usuario = await _usuarioService.GetByIdAsync(userId);
+                await _usuarioService.ResetPassword(tokenRecovery, newPassword);
+                return NoContent();
+
             }
             catch (KeyNotFoundException ex)
             {

@@ -15,16 +15,28 @@ namespace API.Services
         {
             _config = config;
         }
-        public string GenerateToken(string userId, string role,string name,string email, string telefono)
+        public string GenerateToken(string userId,string role,string? name = null,string? email = null,string? telefono = null,TimeSpan? expiration = null)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
-          new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-          new Claim(ClaimTypes.Role, role),
-          new Claim(ClaimTypes.Name, name),
-          new Claim(ClaimTypes.Email, email),
-          new Claim(ClaimTypes.MobilePhone, telefono)
-      };
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                claims.Add(new Claim(ClaimTypes.Name, name));
+            }
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                claims.Add(new Claim(ClaimTypes.Email, email));
+            }
+
+            if (!string.IsNullOrWhiteSpace(telefono))
+            {
+                claims.Add(new Claim(ClaimTypes.MobilePhone, telefono));
+            }
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
@@ -41,12 +53,53 @@ namespace API.Services
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.UtcNow.Add(
+                    expiration ?? TimeSpan.FromDays(1)
+                ),
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler()
                 .WriteToken(token);
+        }
+
+        public ClaimsPrincipal? ValidateToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var key = Encoding.UTF8.GetBytes(
+                _config["Jwt:Key"]!
+            );
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(
+                    token,
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+
+                        ValidateIssuer = true,
+                        ValidIssuer = _config["Jwt:Issuer"],
+
+                        ValidateAudience = true,
+                        ValidAudience = _config["Jwt:Audience"],
+
+                        ValidateLifetime = true,
+
+                        ClockSkew = TimeSpan.Zero
+                    },
+                    out SecurityToken validatedToken
+                );
+
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

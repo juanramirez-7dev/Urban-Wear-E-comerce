@@ -7,5 +7,6 @@ namespace API.Interfaces.Repositories
         Task AddAsync(CodigoRecuperacion codigoRecuperacion);
         Task<CodigoRecuperacion?> GetCodeByUsuarioIdAsync(Guid usuarioId);
         Task UpdateAsync(CodigoRecuperacion codigoRecuperacion);
+        Task DeleteAsync(int id);
     }
 }

@@ -28,5 +28,14 @@ namespace API.Repositories
             _context.CodigosRecuperacion.Update(codigoRecuperacion);
             await _context.SaveChangesAsync();
         }
+        public async Task DeleteAsync(int id)
+        {
+            var codigoRecuperacion = await _context.CodigosRecuperacion.FindAsync(id);
+            if (codigoRecuperacion != null)
+            {
+                _context.CodigosRecuperacion.Remove(codigoRecuperacion);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

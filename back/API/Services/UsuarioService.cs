@@ -1,6 +1,7 @@
 ﻿using API.Interfaces.Repositories;
 using API.Interfaces.Services;
 using API.Models;
+using System.Security.Claims;
 
 namespace API.Services
 {
@@ -9,11 +10,13 @@ namespace API.Services
         private readonly IUsuarioRepository _repository;
         private readonly IHasherService _hasherService;
         private readonly ICodigoRecuperacionRepository _codigoRecuperacionRepository;
-        public UsuarioService(IUsuarioRepository repository, IHasherService hasherService, ICodigoRecuperacionRepository codigoRecuperacionRepository)
+        private readonly IJwtService _jwtService;
+        public UsuarioService(IUsuarioRepository repository, IHasherService hasherService, ICodigoRecuperacionRepository codigoRecuperacionRepository,IJwtService jwtService)
         {
             _repository = repository;
             _hasherService = hasherService;
             _codigoRecuperacionRepository = codigoRecuperacionRepository;
+            _jwtService = jwtService;
         }
         public async Task<IEnumerable<Usuario>> GetAllAsync()
         {
@@ -142,6 +145,7 @@ namespace API.Services
             if (existCode != null)
             {
                 existCode.Codigo = codigo;
+                existCode.ExpirationDate = DateTime.UtcNow.AddMinutes(15);
                 await _codigoRecuperacionRepository.UpdateAsync(existCode);
                 return existCode;
             }
@@ -154,6 +158,54 @@ namespace API.Services
             return codigoRecuperacion;
         }
 
+        public async Task<string> VerificarCodigoDeRecuperacion(string email, string resetCode)
+        {
+            var usuario = await _repository.GetByEmailAsync(email);
+            if (usuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el email {email} no existe.");
+            }
+            var codigoRecuperacion = await _codigoRecuperacionRepository.GetCodeByUsuarioIdAsync(usuario.Id);
+            if (codigoRecuperacion == null || codigoRecuperacion.Codigo != resetCode)
+            {
+                throw new InvalidOperationException("Código de recuperación inválido.");
+            }
+            if (codigoRecuperacion.ExpirationDate < DateTime.UtcNow)
+            {
+                throw new InvalidOperationException("El código de recuperación ha expirado.");
+            }
+            string recoveryToken = _jwtService.GenerateToken(usuario.Id.ToString(), "Recovery", expiration: TimeSpan.FromMinutes(15)
+); ;
+            return recoveryToken;
+        }
+
+        public async Task ResetPassword(string recoveryToken, string newPassword)
+        {
+            var principal = _jwtService.ValidateToken(recoveryToken);
+            var roleClaim = principal?.FindFirstValue(ClaimTypes.Role);
+            if (roleClaim != "Recovery"|| roleClaim == null)
+            {
+                throw new InvalidOperationException("Token de inválido.");
+            }
+            var userIdClaim = Guid.Parse(principal?.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            if (userIdClaim == Guid.Empty)
+            {
+                throw new InvalidOperationException("Token de inválido.");
+            }
+            var existingUsuario = await _repository.GetByIdAsync(userIdClaim);
+            if (existingUsuario == null)
+            {
+                throw new KeyNotFoundException($"Usuario con el ID {userIdClaim} no existe.");
+            }
+            if (newPassword.Length < 8)
+            {
+                throw new ArgumentException($"La nueva contraseña es muy corta");
+            }
+            existingUsuario.PasswordHash = _hasherService.HashPassword(newPassword);
+            await _repository.UpdateAsync(existingUsuario);
+            var codigo = await _codigoRecuperacionRepository.GetCodeByUsuarioIdAsync(existingUsuario.Id);
+            await _codigoRecuperacionRepository.DeleteAsync(codigo!.Id);
+        }
     }
 }
 
