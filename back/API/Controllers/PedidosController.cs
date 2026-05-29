@@ -1,4 +1,5 @@
-﻿using API.DTOs.Pedido;
+﻿using API.DTOs.Estadisticas;
+using API.DTOs.Pedido;
 using API.DTOs.PedidoItem;
 using API.Interfaces.Services;
 using API.Models;
@@ -247,6 +248,13 @@ namespace API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+        [HttpGet("dashboard")]
+        public async Task<ActionResult<EstadisticasDashboardDto>> ObtenerDashboard()
+        {
+            var estadisticas = await _service.ObtenerEstadisticasDashboardAsync();
+
+            return Ok(estadisticas);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using API.Models;
+﻿using API.DTOs.Estadisticas;
+using API.Models;
 
 namespace API.Interfaces.Services
 {
@@ -11,6 +12,6 @@ namespace API.Interfaces.Services
         Task<IEnumerable<PedidoItem>> GetItemsByPedidoIdAsync(Guid pedidoId);
         Task<PedidoItem> GetItemByIdOnPedidoAsync(int id, Guid idPedido);
         Task<byte[]> GenerarFacturaPdfAsync(Guid pedidoId);
-
+        Task<EstadisticasDashboardDto> ObtenerEstadisticasDashboardAsync();
     }
 }

@@ -74,6 +74,7 @@ builder.Services.AddScoped<IPedidoItemRepository, PedidoItemRepository>();
 builder.Services.AddScoped<ICarritoRepository, CarritoRepository>();
 builder.Services.AddScoped<ICarritoItemRepository, CarritoItemRepository>();
 builder.Services.AddScoped<ICodigoRecuperacionRepository, CodigoRecuperacionRepository>();
+builder.Services.AddScoped<IEstadisticasRepository, EstadisticasRepository>();
 
 // Controllers
 builder.Services.AddControllers()

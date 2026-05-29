@@ -1,4 +1,5 @@
 ﻿using API.Context;
+using API.DTOs.Estadisticas;
 using API.Enums;
 using API.Interfaces.Repositories;
 using API.Interfaces.Services;
@@ -15,6 +16,7 @@ namespace API.Services
         private readonly IProductoVarianteRepository _productoVarianteRepository;
         private readonly IPedidoItemRepository _pedidoItemRepository;
         private readonly IFacturaService _facturaService;
+        private readonly IEstadisticasRepository _estadisticasRepository;
         private readonly AppDbContext _context;
         public PedidoService(
             IPedidoRepository repository,
@@ -22,7 +24,8 @@ namespace API.Services
             IProductoVarianteRepository productoVarianteRepository,
             IPedidoItemRepository pedidoItemRepository,
             AppDbContext context,
-            IFacturaService facturaService)
+            IFacturaService facturaService,
+            IEstadisticasRepository estadisticasRepository)
         {
             _repository = repository;
             _usuarioRepository = usuarioRepository;
@@ -30,6 +33,7 @@ namespace API.Services
             _context = context;
             _pedidoItemRepository = pedidoItemRepository;
             _facturaService = facturaService;
+            _estadisticasRepository = estadisticasRepository;
         }
 
         public async Task<IEnumerable<Pedido>> GetAllAsync()
@@ -48,7 +52,7 @@ namespace API.Services
         public async Task<Pedido> GetByIdAsync(Guid id)
         {
             var pedido = await _repository.GetByIdAsync(id);
-            if(pedido == null)
+            if (pedido == null)
             {
                 throw new KeyNotFoundException("Pedido no encontrado");
             }
@@ -168,5 +172,30 @@ namespace API.Services
             return await _facturaService.GenerarFacturaPdfAsync(pedido);
         }
 
+        public async Task<EstadisticasDashboardDto> ObtenerEstadisticasDashboardAsync()
+        {
+            var pedidosAgrupados = await _estadisticasRepository.ObtenerCantidadDePedidosPorMes();
+
+            var pedidosPorMes = Enumerable.Range(1, 12)
+            .Select(mes => new PedidosPorMesDto
+            {
+                Mes = mes,
+
+                CantidadPedidos = pedidosAgrupados
+                    .FirstOrDefault(x => x.Mes == mes)
+                    ?.CantidadPedidos ?? 0
+            })
+            .ToList();
+            var estadisticas = new EstadisticasDashboardDto
+            {
+                CantidadPedidos = await _estadisticasRepository.ObtenerCantidadPedidos(),
+                TotalGenerado = await _estadisticasRepository.ObtenerTotalGenerado(),
+                ClientesRegistrados = await _estadisticasRepository.ObtenerUsuariosRegistrados(),
+                TotalPorProductos = await _estadisticasRepository.ObtenerCantidadProductos(),
+                TopProductosMasVendidos = (await _estadisticasRepository.ObtenerTop3Productos()).ToList(),
+                PedidosPorMes = pedidosPorMes
+            };
+            return estadisticas;
+        }
     }
 }
