@@ -12,8 +12,15 @@ interface RegisterUser {
   password: string;
 }
 
+interface UpdateUserProfileRequest {
+  nombre: string;
+  email: string;
+  telefono: string;
+}
+
 export type {
   User,
-  RegisterUser
+  RegisterUser,
+  UpdateUserProfileRequest
 }
 

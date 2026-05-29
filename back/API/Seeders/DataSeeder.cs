@@ -11,23 +11,8 @@ namespace API.Seeders
     {
         public static async Task SeedAsync(AppDbContext context, IFileService fileService, IHasherService hasherService)
         {
-
-            if (!await context.Usuarios.AnyAsync())
-            {
-                string passwordHash = hasherService.HashPassword("admin123456789");
-                var adminUser = new Usuario
-                {
-                    Id = Guid.NewGuid(),
-                    Nombre = "Admin",
-                    Email = "admin@gmail.com",
-                    Telefono = "9999999999",
-                    Rol = RolUsuario.Admin,
-                    PasswordHash = passwordHash
-                };
-                await context.Usuarios.AddAsync(adminUser);
-                await context.SaveChangesAsync();
-            }
-
+            
+                     
             // Solo se ejecuta si no hay Categorias (datos en Db)
             if (await context.Categorias.AnyAsync()) return;
 
@@ -141,6 +126,151 @@ namespace API.Seeders
 
             await context.SaveChangesAsync();
 
+
+            // Usuario Admin
+            string passwordHash = hasherService.HashPassword("123456789");
+            var adminUser = new Usuario
+            {
+                Id = Guid.NewGuid(),
+                Nombre = "Admin",
+                Email = "admin@gmail.com",
+                Telefono = "9999999999",
+                Rol = RolUsuario.Admin,
+                PasswordHash = passwordHash
+            };
+            await context.Usuarios.AddAsync(adminUser);
+            await context.SaveChangesAsync();
+
+            // Usuarios Cliente
+            var usuariosData = new (string Nombre, string Email, string Telefono, string Password)[]
+            {
+                new ("Juan Pérez", "juanperez@gmail.com", "3001234567", "Juan1234"),
+                new ("María Gómez", "mariagomez@gmail.com", "3012345678", "Maria2024"),
+                new ("Carlos Ramírez", "carlosramirez@gmail.com", "3023456789", "Carlos99"),
+                new ("Laura Torres", "lauratorres@gmail.com", "3034567890", "LauraPass1"),
+                new ("Andrés López", "andreslopez@gmail.com", "3045678901", "Andres123"),
+                new ("Sofía Martínez", "sofiamartinez@gmail.com", "3056789012", "Sofia2025"),
+                new ("Daniel Castro", "danielcastro@gmail.com", "3067890123", "Daniel777"),
+                new ("Valentina Ruiz", "valentinaruiz@gmail.com", "3078901234", "ValePass88"),
+                new ("Felipe Herrera", "felipeherrera@gmail.com", "3089012345", "Felipe456"),
+                new ("Camila Moreno", "camilamoreno@gmail.com", "3090123456", "Camila999")
+            };
+
+            var usuarios = new List<Usuario>();
+
+            foreach (var u in usuariosData)
+            {
+                string userPasswordHash = hasherService.HashPassword(u.Password);
+                usuarios.Add(new Usuario
+                {
+                    Id = Guid.NewGuid(),
+                    Nombre = u.Nombre,
+                    Email = u.Email,
+                    Telefono = u.Telefono,
+                    Rol = RolUsuario.Cliente,
+                    PasswordHash = userPasswordHash
+                });
+            }
+
+            await context.Usuarios.AddRangeAsync(usuarios);
+            await context.SaveChangesAsync();
+
+
+            // Pedidos
+            var productosById = productos.ToDictionary(p => p.Id);
+
+            var variantesDisponibles = productoVariantes
+                .Where(v => v.Stock > 0)
+                .OrderBy(v => v.Id)
+                .ToList();
+
+            var pedidos = new List<Pedido>();
+
+            int indiceVariante = 0;
+
+            foreach (var usuario in usuarios)
+            {
+                for (int numeroPedido = 0; numeroPedido < 2; numeroPedido++)
+                {
+                    // Repartir fechas entre meses de 2026
+                    int mes = ((indiceVariante % 12) + 1);
+                    int dia = ((indiceVariante % 25) + 1);
+
+                    DateTime fechaCreacion = new DateTime(2026, mes, dia);
+
+                    var pedido = new Pedido
+                    {
+                        Id = Guid.NewGuid(),
+                        NombreCliente = usuario.Nombre,
+                        EmailCliente = usuario.Email,
+                        TelefonoCliente = usuario.Telefono,
+                        Direccion = $"Calle {indiceVariante + 10} # {numeroPedido + 20}-15, Medellín",
+                        PedidoFecha = fechaCreacion,
+                        FechaEntrega = fechaCreacion.AddDays(5),
+                        UsuarioId = usuario.Id
+                    };
+
+                    // Cada pedido tendrá 1 o 2 items
+                    int cantidadItems = (indiceVariante % 2 == 0) ? 1 : 2;
+
+                    decimal subtotalPedido = 0m;
+
+                    for (int i = 0; i < cantidadItems; i++)
+                    {
+                        if (indiceVariante >= variantesDisponibles.Count)
+                        {
+                            break;
+                        }
+
+                        var variante = variantesDisponibles[indiceVariante];
+
+                        if (variante.Stock <= 0)
+                        {
+                            indiceVariante++;
+                            continue;
+                        }
+
+                        // Cantidad segura
+                        int cantidad = 1;
+
+                        var producto = productosById[variante.ProductoId];
+
+                        decimal subtotalItem = producto.Precio * cantidad;
+
+                        pedido.ItemsPedido.Add(new PedidoItem
+                        {
+                            ProductoNombre = producto.Nombre,
+                            PrecioUnitario = producto.Precio,
+                            Cantidad = cantidad,
+                            Subtotal = subtotalItem,
+                            Talla = variante.Talla,
+                            ProductoVarianteId = variante.Id
+                        });
+
+                        subtotalPedido += subtotalItem;
+
+                        // Descontar stock
+                        variante.Stock -= cantidad;
+
+                        indiceVariante++;
+                    }
+
+                    // Evitar pedidos vacíos
+                    if (!pedido.ItemsPedido.Any())
+                    {
+                        continue;
+                    }
+
+                    pedido.Subtotal = subtotalPedido;
+                    pedido.Total = subtotalPedido * 1.19m; // Suponiendo un IVA del 19%
+
+                    pedidos.Add(pedido);
+                }
+            }
+
+            await context.Pedidos.AddRangeAsync(pedidos);
+
+            await context.SaveChangesAsync();
 
         }
     }

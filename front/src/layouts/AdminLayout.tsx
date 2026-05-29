@@ -2,9 +2,8 @@ import { useState } from "react"
 import { Outlet } from "react-router"
 import { NavAdmin } from "../components/admin/AdminNav"
 
-export interface LayoutAdminProps extends Readonly<Record<string, never>> {}
 
-export default function LayoutAdmin({}: LayoutAdminProps) {
+export default function LayoutAdmin() {
 	const [isNavCollapsed, setIsNavCollapsed] = useState(false)
 	const mainOffsetClass = isNavCollapsed ? "ml-20" : "ml-20 md:ml-64"
 
