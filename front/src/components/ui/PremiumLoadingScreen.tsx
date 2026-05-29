@@ -1,4 +1,3 @@
-import { premiumLoadingContent } from "../../data/mockData";
 import { useLoadingExperience } from "../../hooks/useLoadingExperience";
 
 export interface PremiumLoadingContent {
@@ -19,13 +18,12 @@ export interface PremiumLoadingScreenProps {
 
 export function PremiumLoadingScreen({
   className = "",
-  content = premiumLoadingContent,
   durationMs,
   onComplete
 }: Readonly<PremiumLoadingScreenProps>) {
   useLoadingExperience({ durationMs, onComplete });
 
-  const brandLetters = Array.from(content.brand);
+  const brandLetters = Array.from("URBAN");
 
   return (
     <main
@@ -43,13 +41,13 @@ export function PremiumLoadingScreen({
         <div
           className="relative mt-4 h-[1px] w-full overflow-hidden bg-surface-container-high"
           role="progressbar"
-          aria-label={content.progressLabel}
+          aria-label="Loading"
         >
           <div className="absolute inset-0 h-full w-full scale-x-0 bg-primary animate-progress" />
         </div>
         <div className="flex flex-col items-center gap-2">
           <span className="animate-label-pulse font-label-sm text-label-sm uppercase tracking-[0.4em] text-secondary opacity-60">
-            {content.label}
+            Loading Experience
           </span>
         </div>
       </div>
@@ -58,17 +56,9 @@ export function PremiumLoadingScreen({
         style={{ animationDelay: "1.5s" }}
       >
         <p className="font-label-sm text-label-sm uppercase tracking-widest">
-          {content.estLabel}
+          Est. 2026
         </p>
       </div>
-      {content.backgroundImageUrl ? (
-        <div className="pointer-events-none absolute inset-0 -z-10 opacity-0">
-          <img
-            alt={content.backgroundImageAlt ?? ""}
-            src={content.backgroundImageUrl}
-          />
-        </div>
-      ) : null}
     </main>
   );
 }

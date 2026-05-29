@@ -70,7 +70,7 @@ export function NavBar() {
               <IconUser/>
             </Link>
           ) : (
-            <Link to={user.role === "Admin" ? "/adim": "/cliente"} className="font-label-md text-label-md uppercase tracking-widest text-secondary dark:text-secondary-fixed-dim">
+            <Link to={user.role === "Admin" ? "/admin": "/cliente"} className="font-label-md text-label-md uppercase tracking-widest text-secondary dark:text-secondary-fixed-dim">
               { user.name }
             </Link>
           )

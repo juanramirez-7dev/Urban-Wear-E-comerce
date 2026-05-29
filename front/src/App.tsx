@@ -17,6 +17,7 @@ import AdminOrders from "./pages/admin/AdminOrders.tsx"
 import ClientLayout from "./layouts/ClientLayout"
 import ClientOrders from "./pages/client/ClientOrders"
 import ClientProfile from "./pages/client/ClientProfile"
+import AdminDashboard from "./pages/admin/AdminDashboard.tsx"
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
       </Route>
       <Route element={<ProtectedRoute roles={["Admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminOrders />} />
+          <Route index element={ <AdminDashboard/> } />
           <Route path="inventory" element={<AdminInventory />} />
           <Route path="inventory/create" element={<AdminCreateProduct />} />
           <Route path="orders" element={<AdminOrders />} />
