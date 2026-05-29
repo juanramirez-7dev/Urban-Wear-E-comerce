@@ -250,6 +250,7 @@ namespace API.Controllers
             }
         }
         [HttpGet("dashboard")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<EstadisticasDashboardDto>> ObtenerDashboard()
         {
             var estadisticas = await _service.ObtenerEstadisticasDashboardAsync();

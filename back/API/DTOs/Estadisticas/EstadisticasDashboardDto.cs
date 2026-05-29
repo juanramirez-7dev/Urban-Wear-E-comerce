@@ -8,7 +8,7 @@
 
         public int ClientesRegistrados { get; set; }
 
-        public decimal TotalPorProductos { get; set; }
+        public int TotalPorProductos { get; set; }
 
         public List<PedidosPorMesDto> PedidosPorMes { get; set; } = [];
 
