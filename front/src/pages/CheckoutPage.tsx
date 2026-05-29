@@ -28,6 +28,9 @@ export default function CheckoutPage() {
     onSuccess: (data) => {
       clearCart();
       navigate(`/bill/${data.id}`);
+    },
+    onError: (error) => {
+      setErrorMessage(error.message || "No se pudo crear el pedido.");
     }
   })
 
@@ -46,6 +49,7 @@ export default function CheckoutPage() {
   };
 
   const handleSubmit = async () => {
+    setErrorMessage(null);
 
     if (items.length === 0) {
       setErrorMessage("Tu carrito esta vacio.");
@@ -111,7 +115,7 @@ export default function CheckoutPage() {
               onChange={handleChange}
               onSubmit={handleSubmit}
               isSubmitting={createPedidoMutation.isPending}
-              errorMessage={errorMessage}
+              errorMessage={errorMessage ?? createPedidoMutation.error?.message ?? null}
             />
           </section>
           <OrderReview items={items} />

@@ -4,14 +4,14 @@ import { Link } from 'react-router';
 
 export function LandingHero() {
   return (
-    <header className="relative h-screen w-full flex items-center overflow-hidden">
+    <header className="relative min-h-[calc(100svh-5rem)] w-full flex items-center overflow-hidden">
       <img
         alt="Urban Wear clothing store hero background"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover object-top"
         src={heroImage}
       />
       <div className="absolute inset-0 bg-black/10"></div>
-      <div className="relative z-10 px-margin-mobile md:px-margin-desktop w-full">
+      <div className="relative z-10 w-full px-margin-mobile md:px-margin-desktop">
         <div className="max-w-3xl">
           <h1 className="text-on-primary font-display-lg text-display-lg-mobile md:text-display-lg mb-stack-md leading-none">
             URBAN WEAR

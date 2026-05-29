@@ -98,6 +98,8 @@ namespace API.Controllers
                     TelefonoCliente = p.TelefonoCliente,
                     PedidoFecha = p.PedidoFecha,
                     FechaEntrega = p.FechaEntrega,
+                    Total = p.Total,
+                    Subtotal = p.Subtotal,
                     UsuarioId = p.UsuarioId,
                     ItemsPedido = p.ItemsPedido.Select(i => new PedidoItemResponseDto
                     {
@@ -238,15 +240,15 @@ namespace API.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { Message = ex.Message });
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new { Message = ex.Message });
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { Message = ex.Message });
             }
         }
         [HttpGet("dashboard")]

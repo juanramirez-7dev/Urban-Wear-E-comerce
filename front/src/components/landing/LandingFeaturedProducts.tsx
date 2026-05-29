@@ -3,19 +3,12 @@ import { LoadingState } from "../ui/LoadingState";
 import type { ProductPagedResponse } from "../../types/productTypes";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../../services/productService";
+import { Link } from "react-router";
 
 
-export interface LandingFeaturedProductsProps {
-  label: string;
-  title: string;
-  viewAllLabel: string;
-}
 
-export function LandingFeaturedProducts({
-  label,
-  title,
-  viewAllLabel
-}: Readonly<LandingFeaturedProductsProps>) {
+
+export function LandingFeaturedProducts() {
 
   const { data: products = null, isLoading } = useQuery<ProductPagedResponse | null>({
     queryKey: ["featuredProducs"],
@@ -30,18 +23,18 @@ export function LandingFeaturedProducts({
         <div className="flex justify-between items-end mb-stack-lg">
           <div>
             <span className="font-label-sm text-label-sm uppercase tracking-[0.2em] text-secondary">
-              {label}
+              Moda
             </span>
             <h2 className="font-display-lg text-headline-md md:text-display-lg-mobile uppercase mt-2">
-              {title}
+              Prendas Destacadas
             </h2>
           </div>
-          <a
+          <Link
             className="font-label-md text-label-md uppercase tracking-widest border-b border-primary pb-1 hover:opacity-70 transition-opacity"
-            href="#"
+            to="/shop"
           >
-            {viewAllLabel}
-          </a>
+            Ver mas
+          </Link>
         </div>
         <LoadingState label="Loading products" />
       </section>
@@ -53,18 +46,18 @@ export function LandingFeaturedProducts({
       <div className="flex justify-between items-end mb-stack-lg">
         <div>
           <span className="font-label-sm text-label-sm uppercase tracking-[0.2em] text-secondary">
-            {label}
+            Moda
           </span>
           <h2 className="font-display-lg text-headline-md md:text-display-lg-mobile uppercase mt-2">
-            {title}
+            Prendas Destacadas
           </h2>
         </div>
-        <a
+        <Link
           className="font-label-md text-label-md uppercase tracking-widest border-b border-primary pb-1 hover:opacity-70 transition-opacity"
-          href="#"
+          to="/shop"
         >
-          {viewAllLabel}
-        </a>
+          Ver mas
+        </Link>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-gutter gap-y-stack-md">
         {featuredItems.map((product) => (
@@ -74,6 +67,7 @@ export function LandingFeaturedProducts({
             nombre={product.nombre}
             precio={product.precio}
             imagenPrincipal={product.imagenPrincipal}
+            categoriaNombre={product.categoriaNombre}
           />
         ))}
       </div>

@@ -1,6 +1,7 @@
 import type { PedidoRequest, PedidoResponse } from "../types/orderTypes";
 import type { ErrorResponseType } from "../types/genericTypes";
 import { BASE_API_URL } from "../config/api";
+import type { StatisticsResponse } from "../types/statisticTypes";
 
 const readErrorMessage = async (response: Response) => {
   try {
@@ -84,5 +85,22 @@ export const orderService = {
     link.remove();
 
     window.URL.revokeObjectURL(url);
+  },
+
+  async getStatistics(token: string) : Promise<StatisticsResponse> {
+    const response = await fetch(`${BASE_API_URL}/Pedidos/dashboard`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error("Error al obtener las estadísticas");
+    }
+
+    const data: StatisticsResponse = await  response.json()
+    return data
+
   }
+
 }

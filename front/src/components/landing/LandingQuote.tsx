@@ -1,9 +1,6 @@
-export interface LandingQuoteProps {
-  text: string;
-  label: string;
-}
 
-export function LandingQuote({ text, label }: Readonly<LandingQuoteProps>) {
+
+export function LandingQuote() {
   return (
     <section className="py-32 bg-surface-container-lowest text-center px-margin-mobile">
       <div className="max-w-4xl mx-auto">
@@ -11,11 +8,11 @@ export function LandingQuote({ text, label }: Readonly<LandingQuoteProps>) {
           format_quote
         </span>
         <p className="font-display-lg text-display-lg-mobile md:text-display-lg italic leading-tight text-primary">
-          "{text}"
+          "La modernidad no reside en el ornamento, sino en la precisión del corte y la pureza del material."
         </p>
         <div className="mt-12 h-px w-24 bg-primary mx-auto"></div>
         <p className="mt-8 font-label-md text-label-md uppercase tracking-[0.3em] text-secondary">
-          {label}
+          Urban Design Philosophy
         </p>
       </div>
     </section>

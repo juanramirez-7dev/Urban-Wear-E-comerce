@@ -1,19 +1,21 @@
+import { Link } from "react-router";
+
 export interface CategoryTileProps {
   title: string;
   imageUrl: string;
   imageAlt: string;
-  ctaLabel?: string;
   size: "large" | "small";
   className?: string;
+  to?: string;
 }
 
 export function CategoryTile({
   title,
   imageUrl,
   imageAlt,
-  ctaLabel,
   size,
-  className
+  className,
+  to
 }: Readonly<CategoryTileProps>) {
   const titleClassName =
     size === "large"
@@ -22,7 +24,8 @@ export function CategoryTile({
   const positionClassName = size === "large" ? "bottom-8 left-8" : "bottom-6 left-6";
 
   return (
-    <div
+    <Link
+    to={to ?? "/shop"}
       className={`relative group overflow-hidden cursor-pointer h-full ${className ?? ""}`.trim()}
     >
       <img
@@ -34,12 +37,7 @@ export function CategoryTile({
         <h3 className={`${titleClassName} uppercase tracking-widest mb-2`}>
           {title}
         </h3>
-        {ctaLabel ? (
-          <p className="font-label-sm text-label-sm uppercase tracking-widest border-b border-on-primary inline-block pb-1">
-            {ctaLabel}
-          </p>
-        ) : null}
       </div>
-    </div>
+    </Link>
   );
 }

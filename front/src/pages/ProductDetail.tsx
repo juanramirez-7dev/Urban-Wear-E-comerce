@@ -179,9 +179,6 @@ export default function ProductDetail() {
                 <span className="font-label-md text-label-md uppercase text-primary">
                   Select Size
                 </span>
-                <span className="font-label-sm text-label-sm text-secondary underline cursor-pointer">
-                  Size Guide
-                </span>
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {product.variantes.map((variant) => {

@@ -18,11 +18,16 @@ import ClientLayout from "./layouts/ClientLayout"
 import ClientOrders from "./pages/client/ClientOrders"
 import ClientProfile from "./pages/client/ClientProfile"
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx"
+import { CartProvider } from "./providers/CartProvider.tsx"
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={ <MainLayout/> } >
+      <Route path="/" element={
+          <CartProvider>
+            <MainLayout/> 
+          </CartProvider>
+        } >
         <Route index element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
